@@ -5,7 +5,7 @@ LDLIBS   := --coverage
 CC := $(CXX)
 
 .DELETE_ON_ERROR:
-.PHONY: run clean cov covclean dist distclean
+.PHONY: run clean cov dist distclean
 
 MAIN := a1main
 ARCH := a1.zip
@@ -20,14 +20,11 @@ run: $(MAIN)
 	valgrind ./$<
 
 clean:
-	rm -f *.o *.gcno *.gcda $(MAIN)
+	rm -f *.o *.gcno *.gcda coverage.* $(MAIN)
 
-cov: run
-	gcovr
+cov: $(MAIN)
+	@echo "\n""[NOTE]: Code coverage is only accurate after running the program once.""\n"
 	gcovr --html-self-contained --html-details coverage.html
-
-covclean:
-	rm -f coverage.*
 
 dist:
 	zip $(ARCH) $(SRCS) $(HDRS) makefile

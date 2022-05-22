@@ -40,3 +40,13 @@ int Song::getLength()
 {
 	return length;
 }
+
+// doctest example
+TEST_SUITE ("foo-bar") {
+	TEST_CASE ("foo") {
+		CHECK ("foo" == "f""o""o");
+	}
+	TEST_CASE ("bar") {
+		CHECK ("bar" != "foo");
+	}
+}

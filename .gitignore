@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Gcov Coverage Data Files
+*.gcda
+*.gcno

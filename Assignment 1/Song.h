@@ -1,3 +1,5 @@
+#include "doctest/doctest.h"
+
 // Song class definition for CMPT 225 assignment
 // Author: John Edgar
 // Date: May 2022
