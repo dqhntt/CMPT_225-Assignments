@@ -7,13 +7,9 @@
  * @todo Take out doctest from all files.
  * 
  */
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest/doctest.h"
-
+#define DOCTEST_CONFIG_IMPLEMENT
 #include "PlayList.h"
 
-#ifndef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 int main() {
     // TODO
 }
-#endif
