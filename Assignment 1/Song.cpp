@@ -3,50 +3,35 @@
 // Date: May 2022
 
 #include "Song.h"
-#include<stdexcept>
+#include <stdexcept>
 
+using std::string;
 using std::out_of_range;
 using std::runtime_error;
 
 // Constructor
-Song::Song(string nm, string art, int len) : name(nm), artist(art), length(len)
+Song::Song(const string& name, const string& artist, int length)
+    : name_(name)
+    , artist_(artist)
+    , length_(length)
 {
-	if (length < 1) {
-		throw out_of_range("negative run time");
-	}
-	if (name == "") {
-		throw runtime_error("a song must have a name");
-	}
-	if (artist == "") {
-		throw runtime_error("a song must have an artist");
-	}
+    if (length < 1) {
+        throw out_of_range("negative run time");
+    }
+    if (name.empty()) {
+        throw runtime_error("a song must have a name");
+    }
+    if (artist.empty()) {
+        throw runtime_error("a song must have an artist");
+    }
 }
 
 // Accessors
 // POST: returns name of song
-string Song::getName()
-{
-	return name;
-}
+const string& Song::getName() const { return name_; }
 
 // POST: returns recording artist of song
-string Song::getArtist()
-{
-	return artist;
-}
+const string& Song::getArtist() const { return artist_; }
 
 // POST: returns length in seconds of song
-int Song::getLength()
-{
-	return length;
-}
-
-// doctest example
-TEST_SUITE ("foo-bar") {
-	TEST_CASE ("foo") {
-		CHECK ("foo" == "f""o""o");
-	}
-	TEST_CASE ("bar") {
-		CHECK ("bar" != "foo");
-	}
-}
+int Song::getLength() const { return length_; }
