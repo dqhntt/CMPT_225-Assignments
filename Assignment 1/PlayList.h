@@ -75,16 +75,10 @@ public:
     // POST: returns the number of songs in the PlayList
     unsigned size() const;
 
-    /**
-     * @throw None.
-     */
-    friend void swap(PlayList& lhs, PlayList& rhs) {
-		std::swap(lhs.head_, rhs.head_);
-		std::swap(lhs.size_, rhs.size_);
-	}
-
 private:
     // TO DO
     unsigned size_;
     PlayListNode* head_;
+
+    void swap(PlayList& other);
 };

@@ -87,17 +87,19 @@ PlayList::PlayList(const PlayList& other) { head_ = other.head_; }
 
 PlayList::~PlayList() { delete head_; }
 
+void PlayList::swap(PlayList& other) {
+		std::swap(head_, other.head_);
+		std::swap(size_, other.size_);
+	}
+
 /**
- * @cite Copy-and-swap idiom.
- * @throw Strong guarantee.
- * @see https://youtu.be/7LxepUEcXA4
+ * @note Copy-and-swap idiom.
+ *       Safer but slower..
+ * @see http://gotw.ca/gotw/059.htm
  *      https://youtu.be/vLinb2fgkHk?t=2245
- *      http://gotw.ca/gotw/059.htm
- * @note Slower but safer..
  */
 PlayList& PlayList::operator=(PlayList other) {
-    using std::swap;
-    swap(*this, other);
+    this->swap(other);
     return *this;
 }
 
