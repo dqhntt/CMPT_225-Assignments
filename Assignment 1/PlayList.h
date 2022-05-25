@@ -6,7 +6,6 @@
 // Write your name and date here
 #pragma once
 #include "Song.h"
-#include <stdexcept>
 
 // Definition of the PlayListNode class - *do not change*
 struct PlayListNode {

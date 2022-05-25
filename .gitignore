@@ -34,3 +34,4 @@
 # Gcov Coverage Data Files
 *.gcda
 *.gcno
+*.gcov

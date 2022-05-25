@@ -1,7 +1,7 @@
 ## For assignment 1 of CMPT 225.
 
 CPPFLAGS := -std=c++11 -Wall -Wextra -Werror -Wfatal-errors -Wno-sign-compare -Wnon-virtual-dtor -g
-CPPFLAGS += --coverage
+CPPFLAGS += -O3 --coverage
 LDLIBS   := --coverage
 CC := $(CXX)
 
@@ -28,7 +28,7 @@ test: $(TEST)
 	./$<
 
 clean:
-	rm -f *.o *.gcno *.gcda coverage.* $(MAIN) $(TEST)
+	rm -f *.o *.gcno *.gcda *.gcov coverage.* $(MAIN) $(TEST)
 
 cov: test
 	@echo ""
