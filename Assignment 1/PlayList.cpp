@@ -81,16 +81,35 @@ inline Node* extractNodeAfter(Node* node) {
 PlayList::PlayList()
     : size_(0)
     , head_(nullptr)
+    , tail_(nullptr)
 { }
 
-PlayList::PlayList(const PlayList& other) { head_ = other.head_; }
+PlayList::PlayList(const PlayList& other)
+    : PlayList()
+{
+    if (other.size_ == 0) {
+        return;
+    }
+    PlayListNode* curr = other.head_;
+    while (curr != nullptr) {
+        // push back
+        this->insert(curr->song, size_);
+        curr = curr->next;
+    }
+}
 
-PlayList::~PlayList() { delete head_; }
+PlayList::~PlayList() {
+    while (head_ != nullptr) {
+        delete head_;
+        head_ = head_->next;
+    }
+}
 
 void PlayList::swap(PlayList& other) {
-		std::swap(head_, other.head_);
-		std::swap(size_, other.size_);
-	}
+    std::swap(head_, other.head_);
+    std::swap(tail_, other.tail_);
+    std::swap(size_, other.size_);
+}
 
 /**
  * @note Copy-and-swap idiom.
@@ -103,12 +122,40 @@ PlayList& PlayList::operator=(PlayList other) {
     return *this;
 }
 
+/**
+ * @brief Return `from` moved up `n` elements.
+ *        e.g. next(head_, pos) returns the node at index `pos`.
+ *             next(tail_) returns nullptr.
+ * @cite Inspired by std::next.
+ * @pre 0 <= n <= (size - (position of `from` relative to `head_`))
+ */
+static PlayListNode* next(PlayListNode* from, unsigned n = 1) {
+    if (from == nullptr && n > 0) {
+        throw std::logic_error(
+            "Dereferencing nullptr in " + std::string(__PRETTY_FUNCTION__) + "().");
+    }
+    while (n-- > 0) {
+        from = from->next;
+    }
+    return from;
+}
+
 void PlayList::insert(const Song& song, unsigned pos) {
     if (pos > size_) {
         throw std::out_of_range("insert(song, " + std::to_string(pos) + ") out of bounds");
     }
-    if (song.getName().empty())
-        pos++;
+    if (pos == 0) {
+        if (size_ == 0) {
+            tail_ = head_ = new PlayListNode(song);
+        } else {
+            head_ = new PlayListNode(song, head_);
+        }
+    } else if (pos == size_) {
+        tail_ = tail_->next = new PlayListNode(song);
+    } else {
+        PlayListNode* const prev = next(head_, pos - 1);
+        prev->next = new PlayListNode(song, prev->next);
+    }
     size_++;
 }
 
@@ -116,7 +163,28 @@ Song PlayList::remove(unsigned pos) {
     if (pos >= size_) {
         throw std::out_of_range("remove(" + std::to_string(pos) + ") out of bounds");
     }
-    return Song("t", "t", 1);
+    if (pos == 0) {
+        PlayListNode* const curr = head_;
+        const Song song = curr->song;
+        head_ = curr->next;
+        delete curr;
+        if (size_ == 1) {
+            tail_ = head_;
+        }
+        size_--;
+        return song;
+    } else {
+        PlayListNode* const prev = next(head_, pos - 1);
+        PlayListNode* const curr = prev->next;
+        const Song song = curr->song;
+        prev->next = curr->next;
+        delete curr;
+        if (pos == size_ - 1) {
+            tail_ = prev;
+        }
+        size_--;
+        return song;
+    }
 }
 
 void PlayList::swap(unsigned pos1, unsigned pos2) {
@@ -124,14 +192,17 @@ void PlayList::swap(unsigned pos1, unsigned pos2) {
         throw std::out_of_range(
             "swap(" + std::to_string(pos1) + ", " + std::to_string(pos2) + ") out of bounds");
     }
+    if (pos1 == pos2) {
+        return;
+    }
+    std::swap(next(head_, pos1)->song, next(head_, pos2)->song);
 }
 
-const Song& PlayList::get(unsigned pos) const {
+Song PlayList::get(unsigned pos) const {
     if (pos >= size_) {
         throw std::out_of_range("get(" + std::to_string(pos) + ") out of bounds");
     }
-    const static Song temp = Song("t", "t", 1);
-    return temp;
+    return pos == size_ - 1 ? tail_->song : next(head_, pos)->song;
 }
 
 unsigned PlayList::size() const { return size_; }

@@ -7,6 +7,12 @@
 #pragma once
 #include "Song.h"
 
+/**
+ * @todo To be removed.
+ */
+#include <iostream> // For testing.
+
+
 // Definition of the PlayListNode class - *do not change*
 struct PlayListNode {
     Song song;          // data representing a song
@@ -18,14 +24,14 @@ struct PlayListNode {
     // POST: Sets song to sng and next to nullptr
     PlayListNode(const Song& sng)
         : PlayListNode(sng, nullptr)
-	{ }
+    { }
 
     // PARAM: sng = song data, nxt = pointer to next node
     // POST: Sets song to sng and next to nxt
     PlayListNode(const Song& sng, PlayListNode* nxt)
         : song(sng)
         , next(nxt)
-	{ }
+    { }
 };
 
 // Complete class definition here
@@ -70,15 +76,29 @@ public:
     // PRE: 0 <= position <= length of list-1
     // PARAM: position - 0-based position of element to be removed and returned
     // POST: returns the Song at position position
-    const Song& get(unsigned position) const;
+    Song get(unsigned position) const;
 
     // POST: returns the number of songs in the PlayList
     unsigned size() const;
 
-private:
-    // TO DO
-    unsigned size_;
-    PlayListNode* head_;
-
+    /**
+     * @todo To be privatized.
+     */
     void swap(PlayList& other);
+
+    /**
+     * @todo To be removed.
+     */
+    friend std::ostream& operator<<(std::ostream& os, const PlayList& pl) {
+        for (PlayListNode* curr = pl.head_; curr != nullptr;
+             curr = curr->next) {
+            os << curr->song.getLength() << " -> ";
+        }
+        os << "NULL";
+        return os;
+    }
+
+private:
+    unsigned size_;
+    PlayListNode *head_, *tail_;
 };
