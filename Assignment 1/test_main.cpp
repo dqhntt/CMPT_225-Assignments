@@ -28,7 +28,8 @@ TEST_CASE("Empty lists with no insertions") {
     REQUIRE(a.size() == 0);
     REQUIRE(b.size() == 0);
     REQUIRE(a == b);
-    SUBCASE("Get and remove") {
+    {
+        INFO("Get and remove");
         CHECK_THROWS_AS(a.get(-1), const std::out_of_range&);
         CHECK_THROWS_AS(a.get(0), const std::out_of_range&);
         CHECK_THROWS_AS(a.get(1), const std::out_of_range&);
@@ -42,7 +43,8 @@ TEST_CASE("Empty lists with no insertions") {
         CHECK_THROWS_AS(b.remove(0), const std::out_of_range&);
         CHECK_THROWS_AS(b.remove(1), const std::out_of_range&);
     }
-    SUBCASE("Swap") {
+    {
+        INFO("Swap");
         REQUIRE_NOTHROW(a.swap(b));
         CHECK_THROWS_AS(a.swap(0, 1), const std::out_of_range&);
         CHECK_THROWS_AS(a.swap(1, 0), const std::out_of_range&);
@@ -66,7 +68,8 @@ TEST_CASE("Empty lists with no insertions") {
             CHECK_THROWS_AS(b.remove(1), const std::out_of_range&);
         }
     }
-    SUBCASE("Copy assign") {
+    {
+        INFO("Copy assign");
         a = b;
         REQUIRE(a.size() == 0);
         REQUIRE(b.size() == 0);
@@ -125,7 +128,8 @@ TEST_CASE("Empty lists with no insertions") {
         }
         REQUIRE_NOTHROW(a.swap(b));
     }
-    SUBCASE("Copy construct") {
+    {
+        INFO("Copy construct");
         PlayList pl(a);
         CHECK(a == b);
         REQUIRE(pl.size() == 0);
@@ -142,19 +146,34 @@ TEST_CASE("Empty lists with no insertions") {
 TEST_CASE("Full tests") {
     PlayList a, b;
     CHECK(a == b);
-    SUBCASE("Insert") {
-        a.insert(Song("name1", "artist1", 1), 0);
+    {
+        INFO("Insert");
+        {
+            INFO("Out of range");
+            CHECK_THROWS(a.insert(Song("out of", "bounds", 1), 1));
+            CHECK_THROWS(a.insert(Song("out of", "bounds", -1), -1));
+            CHECK_THROWS(a.insert(Song("out of", "bounds", -1), -1));
+            CHECK_THROWS(a.insert(Song("out of", "bounds", -1), -1));
+            {
+                INFO("Invalid songs");
+                WARN_THROWS(Song("", "invalid", 1));
+                WARN_THROWS(Song("invalid", "", 1));
+                WARN_THROWS(Song("invalid", "invalid", 0));
+            }
+        }
+        CHECK_NOTHROW(a.insert(Song("name1", "artist1", 1), 0));
         REQUIRE(a.size() == 1);
         CHECK(a != b);
-        a.insert(Song("name11", "artist11", 11), 0);
-        a.insert(Song("name12", "artist12", 12), 0);
-        a.insert(Song("name13", "artist13", 13), 1);
-        a.insert(Song("name14", "artist14", 14), 1); // a = 12 14 13 11 1
+        CHECK_NOTHROW(a.insert(Song("name11", "artist11", 11), 0));
+        CHECK_NOTHROW(a.insert(Song("name12", "artist12", 12), 0));
+        CHECK_NOTHROW(a.insert(Song("name13", "artist13", 13), 1));
+        CHECK_NOTHROW(a.insert(Song("name14", "artist14", 14), 1)); // a = 12 14 13 11 1
         REQUIRE(a.size() == 5);
-        b.insert(Song("name2", "artist2", 2), 0);
-        b.insert(Song("name22", "artist22", 22), 1); // b = 2 22
+        CHECK_NOTHROW(b.insert(Song("name2", "artist2", 2), 0));
+        CHECK_NOTHROW(b.insert(Song("name22", "artist22", 22), 1)); // b = 2 22
         REQUIRE(b.size() == 2);
-        SUBCASE("Get and remove") {
+        {
+            INFO("Get and remove");
             CHECK_THROWS(a.get(-1));
             CHECK_THROWS(a.remove(-1));
             CHECK(a.get(0).getLength() == 12);
@@ -177,35 +196,41 @@ TEST_CASE("Full tests") {
             CHECK_THROWS(b.get(2));
             CHECK_THROWS(b.get(3));
         }
-        SUBCASE("Operators == and !=") {
+        {
+            INFO("Operators == and !=");
             CHECK(a != b);
             CHECK(a == a);
             CHECK(b == b);
         }
-    }
-    SUBCASE("Copy") {
+        }
+    { INFO("Copy") ;
         PlayList c(a); // c = a = 12 14 11
-        SUBCASE("Copy construct") {
+        {
+            INFO("Copy construct");
             CHECK(a == c);
             CHECK_THROWS(c.get(-1));
             CHECK(c.get(0).getName() == a.get(0).getName());
             CHECK(c.get(1).getArtist() == a.get(1).getArtist());
             CHECK(c.get(2).getArtist() == a.get(2).getArtist());
             CHECK(c.get(2).getLength() == a.get(2).getLength());
-            CHECK(c.get(2).getName() == "artist11");
+            CHECK(c.get(2).getArtist() == "artist11");
             CHECK_THROWS(c.get(3));
             CHECK(c == a);
         }
-        SUBCASE("Copy assign") {
-            c = a;
-            CHECK(c == a);
+        {
+            INFO("Copy assign");
             a = c;
+            CHECK_NOTHROW(c.remove(2));
+            CHECK(c != a);
+            CHECK_NOTHROW(c = a);
             CHECK(a == c);
-            SUBCASE("Self assign") {
-                a = a;
-                CHECK(a == a);
-                CHECK(a == c);
-            }
+            c.remove(0);
+            CHECK(a != c);
+            c = a;
+            CHECK_NOTHROW(a.remove(2));
+            CHECK(a != c);
+            CHECK_NOTHROW(a = c);
+            CHECK(c == a);
             PlayList d;
             REQUIRE(d.size() == 0);
             d = c;
@@ -216,12 +241,21 @@ TEST_CASE("Full tests") {
             CHECK(d == b);
             CHECK(d != c);
             CHECK(d != a);
+            {
+                INFO("Self assign");
+                a = a;
+                CHECK(a == a);
+                CHECK(a == c);
+            }
         }
     }
-    SUBCASE("Swap") {
+    {
+        INFO("Swap");
         PlayList c(a); // c = a = 12 14 11
-        SUBCASE("Internal swap") {
-            SUBCASE("First 2") {
+        {
+            INFO("Internal swap");
+            {
+                INFO("First 2");
                 a.swap(0, 1); // a = 14 12 11
                 CHECK(a != c);
                 CHECK(a.get(0).getLength() == 14);
@@ -233,7 +267,8 @@ TEST_CASE("Full tests") {
                 c.swap(1, 0);
                 CHECK(c == a); // c = a = 14 12 11
             }
-            SUBCASE("Last 2") {
+            {
+                INFO("Last 2");
                 a.swap(2, 1); // a = 14 11 12
                 CHECK(a != c);
                 CHECK(a.get(0).getLength() == 14);
@@ -245,7 +280,8 @@ TEST_CASE("Full tests") {
                 c.swap(1, 2);
                 CHECK(c == a); // c = a = 14 11 12
             }
-            SUBCASE("2 ends") {
+            {
+                INFO("2 ends");
                 a.swap(0, 2); // a = 12 11 14
                 CHECK(a != c);
                 CHECK(a.get(0).getLength() == 12);
@@ -257,8 +293,19 @@ TEST_CASE("Full tests") {
                 c.swap(2, 0);
                 CHECK(c == a); // c = a = 12 11 14
             }
+            {
+                INFO("no-op swaps");
+                CHECK_THROWS(a.swap(2, 3));
+                CHECK_THROWS(a.swap(3, 2));
+                CHECK_THROWS(a.swap(3, 3));
+                CHECK_NOTHROW(a.swap(0, 0));
+                CHECK(c == a);
+                CHECK_NOTHROW(a.swap(2, 2));
+                CHECK(a == c);
+            }
         }
-        SUBCASE("Container swap") {
+        {
+            INFO("Container swap");
             REQUIRE_NOTHROW(c.swap(a));
             CHECK(a == c);
             REQUIRE_NOTHROW(c.swap(a));
@@ -272,10 +319,12 @@ TEST_CASE("Full tests") {
     }
 }
 
-TEST_CASE("Stress tests") {
+TEST_CASE("Stress tests" * doctest::timeout(5)) {
     PlayList rev;
-    SUBCASE("Insert at front") { // INT_MAX ... 1
-        for (int i = 1; i < INT_MAX; i++) {
+    const int BIG_NUM = 1000;
+    {
+        INFO("Insert at front"); // BIG_NUM ... 1
+        for (int i = 1; i < BIG_NUM; i++) {
             REQUIRE_NOTHROW(rev.insert(Song("s", "t", i), 0));
             REQUIRE(rev.get(0).getLength() == i);
             REQUIRE(rev.size() == i);
@@ -283,13 +332,16 @@ TEST_CASE("Stress tests") {
     }
     const unsigned size = rev.size();
     PlayList ord = rev;
-    SUBCASE("Copy") {
+    {
+        INFO("Copy");
         REQUIRE(ord == PlayList(rev));
         rev = ord;
         REQUIRE(ord == rev);
     }
-    SUBCASE("Swap") {
-        SUBCASE("Reverse order") { // 1 ... size
+    {
+        INFO("Swap");
+        {
+            INFO("Reverse order"); // 1 ... size
             const unsigned half = size / 2;
             for (unsigned i = 0; i < half; i++) {
                 WARN_NOTHROW(ord.swap(i, size - i - 1));
@@ -302,8 +354,10 @@ TEST_CASE("Stress tests") {
         CHECK(size == rev.size());
         CHECK(ord != rev);
     }
-    SUBCASE("Remove and insert") {
-        SUBCASE("push_back( pop_front ) == copy container") { // 1 ... size
+    {
+        INFO("Remove and insert");
+        {
+            INFO("push_back( pop_front ) == copy container"); // 1 ... size
             INFO("Insert at back, remove at front");
             PlayList ord1, ord2 = ord;
             REQUIRE(ord2 == ord);
@@ -315,7 +369,8 @@ TEST_CASE("Stress tests") {
             CHECK(ord2 == PlayList());
             CHECK(ord1 == ord);
         }
-        SUBCASE("push_front( pop_back ) == copy container") { // 1 ... size
+        {
+            INFO("push_front( pop_back ) == copy container"); // 1 ... size
             INFO("Insert at front, remove at back");
             PlayList ord1, ord2(ord);
             REQUIRE(ord1 != ord2);
@@ -325,7 +380,8 @@ TEST_CASE("Stress tests") {
             CHECK(ord2 == PlayList());
             CHECK(ord1 == ord);
         }
-        SUBCASE("push_back( pop_back ) == reverse container") { // size ... 1
+        {
+            INFO("push_back( pop_back ) == reverse container"); // size ... 1
             INFO("Insert at back, remove at back");
             PlayList rev2, ord2(ord);
             REQUIRE(rev != rev2);
@@ -335,7 +391,8 @@ TEST_CASE("Stress tests") {
             CHECK(ord2 == PlayList());
             CHECK(rev2 == rev);
         }
-        SUBCASE("push_front( pop_front ) == reverse container") { // size ... 1
+        {
+            INFO("push_front( pop_front ) == reverse container"); // size ... 1
             INFO("Insert at front, remove at front");
             PlayList rev2, ord2(ord);
             REQUIRE(rev != rev2);

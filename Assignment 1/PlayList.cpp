@@ -87,9 +87,6 @@ PlayList::PlayList()
 PlayList::PlayList(const PlayList& other)
     : PlayList()
 {
-    if (other.size_ == 0) {
-        return;
-    }
     PlayListNode* curr = other.head_;
     while (curr != nullptr) {
         // push back
@@ -169,7 +166,7 @@ Song PlayList::remove(unsigned pos) {
         head_ = curr->next;
         delete curr;
         if (size_ == 1) {
-            tail_ = head_;
+            tail_ = head_; // = nullptr
         }
         size_--;
         return song;

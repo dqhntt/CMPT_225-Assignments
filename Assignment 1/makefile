@@ -1,6 +1,8 @@
 ## For assignment 1 of CMPT 225.
 
 CPPFLAGS := -std=c++11 -Wall -Wextra -Werror -Wfatal-errors -Wno-sign-compare -Wnon-virtual-dtor -g
+CPPFLAGS += --coverage # -O3
+LDLIBS   := --coverage
 CC := $(CXX)
 
 .DELETE_ON_ERROR:
@@ -21,9 +23,6 @@ $(TEST): $(filter %.o, $(TESTS:.cpp=.o) $(TESTS:.c=.o))
 
 run: $(MAIN)
 	valgrind ./$<
-
-CPPFLAGS += --coverage -O3
-LDLIBS   := --coverage
 
 test: $(TEST)
 	./$<
