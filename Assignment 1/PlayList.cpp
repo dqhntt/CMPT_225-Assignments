@@ -84,22 +84,35 @@ PlayList::PlayList()
     , tail_(nullptr)
 { }
 
+/**
+ * @brief Deallocate all linked nodes from `first` to but not including `last`.
+ */
+static void destroy(PlayListNode* first, PlayListNode* last) {
+    PlayListNode* next;
+    while (first != last) {
+        next = first->next;
+        delete first;
+        first = next;
+    }
+}
+
 PlayList::PlayList(const PlayList& other)
     : PlayList()
 {
     PlayListNode* curr = other.head_;
     while (curr != nullptr) {
-        // push back
-        this->insert(curr->song, size_);
+        try { // push back
+            this->insert(curr->song, size_);
+        } catch (...) {
+            destroy(head_, nullptr);
+            throw;
+        }
         curr = curr->next;
     }
 }
 
 PlayList::~PlayList() {
-    while (head_ != nullptr) {
-        delete head_;
-        head_ = head_->next;
-    }
+    destroy(head_, nullptr);
 }
 
 void PlayList::swap(PlayList& other) {
