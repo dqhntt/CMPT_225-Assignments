@@ -308,13 +308,24 @@ TEST_CASE("Full tests") {
             INFO("Container swap");
             REQUIRE_NOTHROW(c.swap(a));
             CHECK(a == c);
-            REQUIRE_NOTHROW(c.swap(a));
-            CHECK(c == a);
-            REQUIRE_NOTHROW(a.swap(c));
-            CHECK(a == c);
-            REQUIRE_NOTHROW(a.swap(a));
+            a.remove(0); // a = 11 14
+            REQUIRE(a.size() == 2);
+            REQUIRE(c.size() == 3); // c = 12 11 14
+            REQUIRE_NOTHROW(c.swap(a)); // a[3], c[2]
+            CHECK(c != a);
+            CHECK(a.size() == 3);
+            CHECK(c.size() == 2);
+            CHECK(a.get(0).getLength() == 12);
+            CHECK(c.get(0).getLength() == 11);
+            REQUIRE_NOTHROW(a.swap(c)); // a[2], c[3]
+            CHECK(a != c);
+            CHECK(a.size() == 2);
+            CHECK(c.size() == 3);
+            CHECK(a.get(1).getLength() == 14);
+            CHECK(c.get(1).getLength() == 11);
+            REQUIRE_NOTHROW(a.swap(a)); // Itself.
             CHECK(a == a);
-            CHECK(c == a);
+            CHECK(c == c);
         }
     }
 }
