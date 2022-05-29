@@ -76,18 +76,20 @@ inline Node* extractNodeAfter(Node* node) {
 }
 } // namespace
 
-// PlayList method implementations go here
+namespace {
 
-PlayList::PlayList()
-    : size_(0)
-    , head_(nullptr)
-    , tail_(nullptr)
-{ }
+/**
+ * @brief Insert `song` after `node` in the free store.
+ *        Reconnect nodes automatically.
+ */
+inline void append(PlayListNode* node, const Song& song) {
+    node->next = new PlayListNode(song, node->next);
+}
 
 /**
  * @brief Deallocate all linked nodes from `first` to but not including `last`.
  */
-static void destroy(PlayListNode* first, PlayListNode* last) {
+inline void destroy(PlayListNode* first, PlayListNode* last) {
     PlayListNode* next;
     while (first != last) {
         next = first->next;
@@ -96,18 +98,56 @@ static void destroy(PlayListNode* first, PlayListNode* last) {
     }
 }
 
+/**
+ * @brief Move `node` up `n` elements.
+ * @warning May cause SIGSEGV.
+ */
+inline void advance(PlayListNode*& node, unsigned n) {
+    while (n-- > 0) {
+        node = node->next;
+    }
+}
+
+/**
+ * @brief Return `from` moved up `n` elements.
+ *        e.g. next(head_, pos) returns the node at index `pos`.
+ *             next(tail_) returns nullptr.
+ * @pre 0 <= n <= (size - (position of `from` relative to `head_`))
+ * @warning May cause SIGSEGV.
+ */
+inline PlayListNode* next(PlayListNode* from, unsigned n = 1) {
+    advance(from, n);
+    return from;
+}
+} // namespace
+
+// PlayList method implementations go here
+
+PlayList::PlayList()
+    : size_(0)
+    , head_(nullptr)
+    , tail_(nullptr)
+{ }
+
 PlayList::PlayList(const PlayList& other)
-    : PlayList()
+    : size_(other.size_)
+    , head_(nullptr)
+    , tail_(nullptr)
 {
-    PlayListNode* curr = other.head_;
+    if (other.size_ == 0) {
+        return;
+    }
+    tail_ = head_ = new PlayListNode(other.head_->song);
+    PlayListNode* curr = next(other.head_);
     while (curr != nullptr) {
-        try { // push back
-            this->insert(curr->song, size_);
+        try {
+            append(tail_, curr->song);
+            advance(tail_, 1);
         } catch (...) {
             destroy(head_, nullptr);
             throw;
         }
-        curr = curr->next;
+        advance(curr, 1);
     }
 }
 
@@ -131,21 +171,6 @@ PlayList& PlayList::operator=(PlayList other) {
     this->swap(other);
     return *this;
 }
-
-/**
- * @brief Return `from` moved up `n` elements.
- *        e.g. next(head_, pos) returns the node at index `pos`.
- *             next(tail_) returns nullptr.
- * @cite Inspired by std::next.
- * @pre 0 <= n <= (size - (position of `from` relative to `head_`))
- */
-static PlayListNode* next(PlayListNode* from, unsigned n = 1) {
-    if (from == nullptr && n > 0) {
-        throw std::logic_error(
-            "Dereferencing nullptr in " + std::string(__PRETTY_FUNCTION__) + "().");
-    }
-    while (n-- > 0) {
-        from = from->next;
     }
     return from;
 }
@@ -161,10 +186,10 @@ void PlayList::insert(const Song& song, unsigned pos) {
             head_ = new PlayListNode(song, head_);
         }
     } else if (pos == size_) {
-        tail_ = tail_->next = new PlayListNode(song);
+        append(tail_, song);
+        advance(tail_, 1);
     } else {
-        PlayListNode* const prev = next(head_, pos - 1);
-        prev->next = new PlayListNode(song, prev->next);
+        append(next(head_, pos - 1), song);
     }
     size_++;
 }
@@ -176,7 +201,7 @@ Song PlayList::remove(unsigned pos) {
     if (pos == 0) {
         PlayListNode* const curr = head_;
         const Song song = curr->song;
-        head_ = curr->next;
+        advance(head_, 1);
         delete curr;
         if (size_ == 1) {
             tail_ = head_; // = nullptr

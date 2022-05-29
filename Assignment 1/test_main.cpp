@@ -202,8 +202,9 @@ TEST_CASE("Full tests") {
             CHECK(a == a);
             CHECK(b == b);
         }
-        }
-    { INFO("Copy") ;
+    }
+    {
+        INFO("Copy");
         PlayList c(a); // c = a = 12 14 11
         {
             INFO("Copy construct");
