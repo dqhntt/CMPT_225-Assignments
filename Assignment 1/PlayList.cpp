@@ -77,20 +77,30 @@ inline Node* extractNodeAfter(Node* node) {
 } // namespace
 
 namespace {
-
 /**
  * @brief Insert `song` after `node` in the free store.
  *        Reconnect nodes automatically.
  */
-inline void append(PlayListNode* node, const Song& song) {
-    node->next = new PlayListNode(song, node->next);
+inline void append(Node* node, const Song& song) {
+    node->next = new Node(song, node->next);
+}
+
+/**
+ * @brief Insert `target` after `node`.
+ *        Reconnect nodes automatically.
+ */
+inline void append(Node* node, Node* target) {
+    if (target != nullptr) {
+        target->next = node->next;
+    }
+    node->next = target;
 }
 
 /**
  * @brief Deallocate all linked nodes from `first` to but not including `last`.
  */
-inline void destroy(PlayListNode* first, PlayListNode* last) {
-    PlayListNode* next;
+inline void destroy(Node* first, Node* last) {
+    Node* next;
     while (first != last) {
         next = first->next;
         delete first;
@@ -102,7 +112,7 @@ inline void destroy(PlayListNode* first, PlayListNode* last) {
  * @brief Move `node` up `n` elements.
  * @warning May cause SIGSEGV.
  */
-inline void advance(PlayListNode*& node, unsigned n) {
+inline void advance(Node*& node, unsigned n) {
     while (n-- > 0) {
         node = node->next;
     }
@@ -115,9 +125,22 @@ inline void advance(PlayListNode*& node, unsigned n) {
  * @pre 0 <= n <= (size - (position of `from` relative to `head_`))
  * @warning May cause SIGSEGV.
  */
-inline PlayListNode* next(PlayListNode* from, unsigned n = 1) {
+inline Node* next(Node* from, unsigned n = 1) {
     advance(from, n);
     return from;
+}
+
+/**
+ * @brief Returns owning pointer to node after `node`.
+ *        Reconnect nodes automatically.
+ * @warning Caller is responsible for freeing the returned pointer.
+ */
+inline Node* extractNodeAfter(Node* node) {
+    Node* const target = node->next;
+    if (target != nullptr) {
+        node->next = target->next;
+    }
+    return target;
 }
 } // namespace
 
@@ -137,8 +160,8 @@ PlayList::PlayList(const PlayList& other)
     if (other.size_ == 0) {
         return;
     }
-    tail_ = head_ = new PlayListNode(other.head_->song);
-    PlayListNode* curr = next(other.head_);
+    tail_ = head_ = new Node(other.head_->song);
+    Node* curr = next(other.head_);
     while (curr != nullptr) {
         try {
             append(tail_, curr->song);
@@ -171,9 +194,6 @@ PlayList& PlayList::operator=(PlayList other) {
     this->swap(other);
     return *this;
 }
-    }
-    return from;
-}
 
 void PlayList::insert(const Song& song, unsigned pos) {
     if (pos > size_) {
@@ -181,9 +201,9 @@ void PlayList::insert(const Song& song, unsigned pos) {
     }
     if (pos == 0) {
         if (size_ == 0) {
-            tail_ = head_ = new PlayListNode(song);
+            tail_ = head_ = new Node(song);
         } else {
-            head_ = new PlayListNode(song, head_);
+            head_ = new Node(song, head_);
         }
     } else if (pos == size_) {
         append(tail_, song);
@@ -199,7 +219,7 @@ Song PlayList::remove(unsigned pos) {
         throw std::out_of_range("remove(" + std::to_string(pos) + ") out of bounds");
     }
     if (pos == 0) {
-        PlayListNode* const curr = head_;
+        Node* const curr = head_;
         const Song song = curr->song;
         advance(head_, 1);
         delete curr;
@@ -209,11 +229,9 @@ Song PlayList::remove(unsigned pos) {
         size_--;
         return song;
     } else {
-        PlayListNode* const prev = next(head_, pos - 1);
-        PlayListNode* const curr = prev->next;
-        const Song song = curr->song;
-        prev->next = curr->next;
-        delete curr;
+        Node* const prev = next(head_, pos - 1);
+        const Song song = prev->next->song;
+        delete extractNodeAfter(prev);
         if (pos == size_ - 1) {
             tail_ = prev;
         }
@@ -230,7 +248,29 @@ void PlayList::swap(unsigned pos1, unsigned pos2) {
     if (pos1 == pos2) {
         return;
     }
-    std::swap(next(head_, pos1)->song, next(head_, pos2)->song);
+    const unsigned first = std::min(pos1, pos2);
+    const unsigned second = std::max(pos1, pos2);
+    if (first > 0) {
+        Node* const prev1 = next(head_, first - 1);
+        Node* const prev2 = next(prev1, second - first);
+        Node* const node2 = extractNodeAfter(prev2);
+        Node* const node1 = extractNodeAfter(prev1);
+        append(prev1, node2);
+        append(prev2 == node1 ? node2 : prev2, node1);
+        if (node2 == tail_) {
+            tail_ = node1;
+        }
+    } else {
+        Node* const node1 = head_;
+        Node* const prev2 = next(head_, second - 1);
+        Node* const node2 = extractNodeAfter(prev2);
+        node2->next = node1->next;
+        head_ = node2;
+        append(prev2 == node1 ? node2 : prev2, node1);
+        if (node2 == tail_) {
+            tail_ = node1;
+        }
+    }
 }
 
 Song PlayList::get(unsigned pos) const {
@@ -240,4 +280,6 @@ Song PlayList::get(unsigned pos) const {
     return pos == size_ - 1 ? tail_->song : next(head_, pos)->song;
 }
 
-unsigned PlayList::size() const { return size_; }
+unsigned PlayList::size() const {
+    return size_;
+}
