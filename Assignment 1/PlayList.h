@@ -54,7 +54,7 @@ public:
     // POST: dynamic memory of calling object deallocated (except
     //       under self-assignment), calling object is set to a
     //       a deep copy of other
-    PlayList& operator=(PlayList other);
+    PlayList& operator=(const PlayList& other);
 
     // Mutators
     // PRE: 0 <= i <= length of list

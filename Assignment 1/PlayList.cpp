@@ -185,13 +185,16 @@ void PlayList::swap(PlayList& other) {
 }
 
 /**
- * @note Copy-and-swap idiom.
- *       Safer but slower..
+ * @note Modified copy-and-swap idiom.
+ *       Safer but slower...
  * @see http://gotw.ca/gotw/059.htm
  *      https://youtu.be/vLinb2fgkHk?t=2245
  */
-PlayList& PlayList::operator=(PlayList other) {
-    this->swap(other);
+PlayList& PlayList::operator=(const PlayList& other) {
+    if (this != &other) {
+        PlayList copy(other);
+        this->swap(copy);
+    }
     return *this;
 }
 
