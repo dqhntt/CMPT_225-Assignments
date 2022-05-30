@@ -76,74 +76,6 @@ inline Node* extractNodeAfter(Node* node) {
 }
 } // namespace
 
-namespace {
-/**
- * @brief Insert `song` after `node` in the free store.
- *        Reconnect nodes automatically.
- */
-inline void append(Node* node, const Song& song) {
-    node->next = new Node(song, node->next);
-}
-
-/**
- * @brief Insert `target` after `node`.
- *        Reconnect nodes automatically.
- */
-inline void append(Node* node, Node* target) {
-    if (target != nullptr) {
-        target->next = node->next;
-    }
-    node->next = target;
-}
-
-/**
- * @brief Deallocate all linked nodes from `first` to but not including `last`.
- */
-inline void destroy(Node* first, Node* last) {
-    Node* next;
-    while (first != last) {
-        next = first->next;
-        delete first;
-        first = next;
-    }
-}
-
-/**
- * @brief Move `node` up `n` elements.
- * @warning May cause SIGSEGV.
- */
-inline void advance(Node*& node, unsigned n) {
-    while (n-- > 0) {
-        node = node->next;
-    }
-}
-
-/**
- * @brief Return `from` moved up `n` elements.
- *        e.g. next(head_, pos) returns the node at index `pos`.
- *             next(tail_) returns nullptr.
- * @pre 0 <= n <= (size - (position of `from` relative to `head_`))
- * @warning May cause SIGSEGV.
- */
-inline Node* next(Node* from, unsigned n = 1) {
-    advance(from, n);
-    return from;
-}
-
-/**
- * @brief Returns owning pointer to node after `node`.
- *        Reconnect nodes automatically.
- * @warning Caller is responsible for freeing the returned pointer.
- */
-inline Node* extractNodeAfter(Node* node) {
-    Node* const target = node->next;
-    if (target != nullptr) {
-        node->next = target->next;
-    }
-    return target;
-}
-} // namespace
-
 // PlayList method implementations go here
 
 PlayList::PlayList()
@@ -223,7 +155,7 @@ Song PlayList::remove(unsigned pos) {
     }
     if (pos == 0) {
         Node* const curr = head_;
-        const Song song = curr->song;
+        Song song = curr->song;
         advance(head_, 1);
         delete curr;
         if (size_ == 1) {
@@ -233,7 +165,7 @@ Song PlayList::remove(unsigned pos) {
         return song;
     } else {
         Node* const prev = next(head_, pos - 1);
-        const Song song = prev->next->song;
+        Song song = prev->next->song;
         delete extractNodeAfter(prev);
         if (pos == size_ - 1) {
             tail_ = prev;

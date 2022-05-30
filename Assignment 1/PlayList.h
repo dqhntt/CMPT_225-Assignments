@@ -7,12 +7,6 @@
 #pragma once
 #include "Song.h"
 
-/**
- * @todo To be removed.
- */
-#include <iostream> // For testing.
-
-
 // Definition of the PlayListNode class - *do not change*
 struct PlayListNode {
     Song song;          // data representing a song
@@ -58,47 +52,32 @@ public:
 
     // Mutators
     // PRE: 0 <= i <= length of list
-    // PARAM: position - 0-based insertion position
-    //        song - Song to be inserted at position
-    void insert(const Song& song, unsigned position);
+    // PARAM: pos - 0-based insertion position
+    //        song - Song to be inserted at pos
+    void insert(const Song& song, unsigned pos);
 
-    // PRE: 0 <= position <= length of list-1
-    // PARAM: position - 0-based position of element to be removed and returned
-    // POST: Song at position position is removed and returned
-    Song remove(unsigned position);
+    // PRE: 0 <= pos <= length of list-1
+    // PARAM: pos - 0-based position of element to be removed and returned
+    // POST: Song at position pos is removed and returned
+    Song remove(unsigned pos);
 
-    // PRE: 0 <= position1, position2 <= length of list-1
-    // PARAM: position1, position2 - 0-based positions of elements to be swapped
-    // POST: Songs at positions position1 and position2 are swapped
-    void swap(unsigned position1, unsigned position2);
+    // PRE: 0 <= pos1, pos2 <= length of list-1
+    // PARAM: pos1, pos2 - 0-based positions of elements to be swapped
+    // POST: Songs at positions pos1 and pos2 are swapped
+    void swap(unsigned pos1, unsigned pos2);
 
     // Accessor
-    // PRE: 0 <= position <= length of list-1
-    // PARAM: position - 0-based position of element to be removed and returned
-    // POST: returns the Song at position position
-    Song get(unsigned position) const;
+    // PRE: 0 <= pos <= length of list-1
+    // PARAM: pos - 0-based position of element to be removed and returned
+    // POST: returns the Song at position pos
+    Song get(unsigned pos) const;
 
     // POST: returns the number of songs in the PlayList
     unsigned size() const;
 
-    /**
-     * @todo To be privatized.
-     */
-    void swap(PlayList& other);
-
-    /**
-     * @todo To be removed.
-     */
-    friend std::ostream& operator<<(std::ostream& os, const PlayList& pl) {
-        for (PlayListNode* curr = pl.head_; curr != nullptr;
-             curr = curr->next) {
-            os << curr->song.getLength() << " -> ";
-        }
-        os << "NULL";
-        return os;
-    }
-
 private:
     unsigned size_;
     PlayListNode *head_, *tail_;
+
+    void swap(PlayList& other);
 };
