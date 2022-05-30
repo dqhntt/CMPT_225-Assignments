@@ -22,7 +22,7 @@ $(MAIN): $(filter %.o, $(SRCS:.cpp=.o) $(SRCS:.c=.o)) # With object files.
 $(TEST): $(filter %.o, $(TESTS:.cpp=.o) $(TESTS:.c=.o))
 
 run: $(MAIN)
-	valgrind ./$<
+	./$<
 
 test: $(TEST)
 	./$<
