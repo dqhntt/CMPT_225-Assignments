@@ -5,7 +5,6 @@
  * @date 2022-06-03
  */
 #include "PlayList.h"
-#include <functional>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -26,10 +25,10 @@ bool isInt(const std::string& str) {
 }
 
 template <class UnaryPredicate = bool (*)(const std::string&)>
-std::string getValidInput(const std::string& promptMsg, const std::string& errorMsg,
-                          const UnaryPredicate& isValid) {
+std::string getValidInput(
+    const std::string& promptMsg, const std::string& errorMsg, UnaryPredicate pred) {
     std::string response = input(promptMsg);
-    while (!isValid(response)) {
+    while (!pred(response)) {
         std::cout << errorMsg << "\n";
         response = input(promptMsg);
     }
@@ -58,10 +57,6 @@ bool isValidSong(const std::string& str, SongField field) {
     }
 }
 
-std::function<bool(const std::string&)> validateSong(SongField field) {
-    return std::bind(isValidSong, std::placeholders::_1, field);
-}
-
 namespace menu {
     enum class Option { insert, remove, swap, print, quit };
     Option getOption() {
@@ -81,6 +76,9 @@ namespace menu {
     }
 
     void insertSongs(PlayList& pl) {
+        auto validateSong = [](SongField field) {
+            return [field](const std::string& str) { return isValidSong(str, field); };
+        };
         const Song song = {
             getValidInput("Song name:", "Invalid name.", validateSong(SongField::name)),
             getValidInput("Artist:", "Invalid artist.", validateSong(SongField::artist)),
