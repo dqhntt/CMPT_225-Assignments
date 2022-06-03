@@ -16,6 +16,12 @@ namespace {
 inline void append(Node* node, const Song& song) {
     node->next = new Node(song, node->next);
 }
+/**
+ * @see https://youtu.be/xnqTKD8uD64?t=4006
+ */
+inline void append(Node* node, Song&& song) {
+    node->next = new Node(std::move(song), node->next);
+}
 
 /**
  * @brief Insert `with` (one node, not the whole chain) after `to`.
@@ -42,7 +48,6 @@ inline void destroy(Node* first, const Node* last) {
 
 /**
  * @brief Move `node` up `n` elements.
- * @warning May cause SIGSEGV.
  */
 inline void advance(Node*& node, unsigned n) {
     while (n-- > 0) {
@@ -55,7 +60,6 @@ inline void advance(Node*& node, unsigned n) {
  *        e.g. next(head_, pos) returns the node at index `pos`.
  *             next(tail_) returns nullptr.
  * @pre 0 <= n <= (size - (position of `from` relative to `head_`))
- * @warning May cause SIGSEGV.
  */
 inline Node* next(Node* from, unsigned n = 1) {
     advance(from, n);
@@ -118,7 +122,7 @@ void PlayList::swap(PlayList& other) {
 
 /**
  * @note Modified copy-and-swap idiom.
- *       Safer but slower...
+ * 
  * @see http://gotw.ca/gotw/059.htm
  *      https://youtu.be/vLinb2fgkHk?t=2245
  */
@@ -130,21 +134,21 @@ PlayList& PlayList::operator=(const PlayList& other) {
     return *this;
 }
 
-void PlayList::insert(const Song& song, unsigned pos) {
+void PlayList::insert(Song song, unsigned pos) {
     if (pos > size_) {
         throw std::out_of_range("insert(song, " + std::to_string(pos) + ") out of bounds");
     }
     if (pos == 0) {
         if (size_ == 0) {
-            tail_ = head_ = new Node(song);
+            tail_ = head_ = new Node(std::move(song));
         } else {
-            head_ = new Node(song, head_);
+            head_ = new Node(std::move(song), head_);
         }
     } else if (pos == size_) {
-        append(tail_, song);
+        append(tail_, std::move(song));
         advance(tail_, 1);
     } else {
-        append(next(head_, pos - 1), song);
+        append(next(head_, pos - 1), std::move(song));
     }
     size_++;
 }

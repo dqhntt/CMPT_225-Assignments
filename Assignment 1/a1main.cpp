@@ -79,17 +79,18 @@ namespace menu {
         auto validateSong = [](SongField field) {
             return [field](const std::string& str) { return isValidSong(str, field); };
         };
-        const Song song = {
-            getValidInput("Song name:", "Invalid name.", validateSong(SongField::name)),
-            getValidInput("Artist:", "Invalid artist.", validateSong(SongField::artist)),
+        const std::string songName
+            = getValidInput("Song name:", "Invalid name.", validateSong(SongField::name));
+        Song song = {
+            songName, getValidInput("Artist:", "Invalid artist.", validateSong(SongField::artist)),
             std::stoi(getValidInput("Length:", "Invalid length.", validateSong(SongField::length)))
         };
         const unsigned size = pl.size();
         const unsigned pos = getIntInRange(1, size + 1,
             "Position (1" + (size > 0 ? (" to " + std::to_string(size + 1)) : "") + "):",
             "Invalid position.");
-        pl.insert(song, pos - 1);
-        std::cout << "You entered " << song.getName() << " at position " << pos
+        pl.insert(std::move(song), pos - 1);
+        std::cout << "You entered " << songName << " at position " << pos
                   << " in the play list.\n\n";
     }
 
@@ -130,7 +131,7 @@ namespace menu {
     void printSongs(const PlayList& pl) {
         const unsigned size = pl.size();
         for (unsigned i = 0; i < size; i++) {
-            const Song song = pl.get(i);
+            Song song = pl.get(i);
             std::cout << " " << i + 1 << " " << song.getName() << " (" << song.getArtist() << ") "
                       << song.getLength() << "s\n";
         }

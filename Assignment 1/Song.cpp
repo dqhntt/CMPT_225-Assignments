@@ -5,15 +5,11 @@
 #include "Song.h"
 #include <stdexcept>
 
-using std::string;
 using std::out_of_range;
 using std::runtime_error;
 
 // Constructor
-Song::Song(const string& name, const string& artist, int length)
-    : name_(name)
-    , artist_(artist)
-    , length_(length)
+Song::Song(string nm, string art, int len) : name(nm), artist(art), length(len)
 {
     if (length < 1) {
         throw out_of_range("negative run time");
@@ -28,10 +24,19 @@ Song::Song(const string& name, const string& artist, int length)
 
 // Accessors
 // POST: returns name of song
-const string& Song::getName() const { return name_; }
+string Song::getName()
+{
+	return name;
+}
 
 // POST: returns recording artist of song
-const string& Song::getArtist() const { return artist_; }
+string Song::getArtist()
+{
+	return artist;
+}
 
 // POST: returns length in seconds of song
-int Song::getLength() const { return length_; }
+int Song::getLength()
+{
+	return length;
+}

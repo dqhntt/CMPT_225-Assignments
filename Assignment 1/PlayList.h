@@ -16,14 +16,14 @@ struct PlayListNode {
 
     // PARAM: sng = song data
     // POST: Sets song to sng and next to nullptr
-    PlayListNode(const Song& sng)
-        : PlayListNode(sng, nullptr)
+    PlayListNode(Song sng)
+        : PlayListNode(std::move(sng), nullptr)
     { }
 
     // PARAM: sng = song data, nxt = pointer to next node
     // POST: Sets song to sng and next to nxt
-    PlayListNode(const Song& sng, PlayListNode* nxt)
-        : song(sng)
+    PlayListNode(Song sng, PlayListNode* nxt)
+        : song(std::move(sng))
         , next(nxt)
     { }
 };
@@ -54,7 +54,7 @@ public:
     // PRE: 0 <= i <= length of list
     // PARAM: pos - 0-based insertion position
     //        song - Song to be inserted at pos
-    void insert(const Song& song, unsigned pos);
+    void insert(Song song, unsigned pos);
 
     // PRE: 0 <= pos <= length of list-1
     // PARAM: pos - 0-based position of element to be removed and returned
