@@ -30,3 +30,17 @@
 *.exe
 *.out
 *.app
+
+# Gcov Coverage Data Files
+*.gcda
+*.gcno
+*.gcov
+
+# Visual Studio files
+x64/
+.vs/
+.vscode/
+*.sln
+*.vcxproj
+*.user
+*.filters
