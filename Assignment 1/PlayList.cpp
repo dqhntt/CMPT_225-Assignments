@@ -128,8 +128,7 @@ void PlayList::swap(PlayList& other) {
  */
 PlayList& PlayList::operator=(const PlayList& other) {
     if (this != &other) {
-        PlayList copy(other);
-        this->swap(copy);
+        PlayList(other).swap(*this);
     }
     return *this;
 }
@@ -158,10 +157,10 @@ Song PlayList::remove(unsigned pos) {
         throw std::out_of_range("remove(" + std::to_string(pos) + ") out of bounds");
     }
     if (pos == 0) {
-        Node* const curr = head_;
-        Song song = curr->song;
+        Node* const old = head_;
+        Song song = std::move(old->song);
         advance(head_, 1);
-        delete curr;
+        delete old;
         if (size_ == 1) {
             tail_ = head_; // = nullptr
         }
@@ -169,7 +168,7 @@ Song PlayList::remove(unsigned pos) {
         return song;
     } else {
         Node* const prev = next(head_, pos - 1);
-        Song song = prev->next->song;
+        Song song = std::move(prev->next->song);
         delete extractNodeAfter(prev);
         if (pos == size_ - 1) {
             tail_ = prev;
@@ -189,26 +188,21 @@ void PlayList::swap(unsigned pos1, unsigned pos2) {
     }
     const unsigned first = std::min(pos1, pos2);
     const unsigned second = std::max(pos1, pos2);
+    Node* node1;
+    Node* const prev2 = next(head_, second - 1);
+    Node* const node2 = extractNodeAfter(prev2);
     if (first > 0) {
         Node* const prev1 = next(head_, first - 1);
-        Node* const prev2 = next(prev1, second - first);
-        Node* const node2 = extractNodeAfter(prev2);
-        Node* const node1 = extractNodeAfter(prev1);
+        node1 = extractNodeAfter(prev1);
         append(prev1, node2);
-        append(prev2 == node1 ? node2 : prev2, node1);
-        if (node2 == tail_) {
-            tail_ = node1;
-        }
     } else {
-        Node* const node1 = head_;
-        Node* const prev2 = next(head_, second - 1);
-        Node* const node2 = extractNodeAfter(prev2);
+        node1 = head_;
         node2->next = node1->next;
         head_ = node2;
-        append(prev2 == node1 ? node2 : prev2, node1);
-        if (node2 == tail_) {
-            tail_ = node1;
-        }
+    }
+    append(prev2 == node1 ? node2 : prev2, node1);
+    if (node2 == tail_) {
+        tail_ = node1;
     }
 }
 

@@ -8,11 +8,10 @@
 #include "Song.h"
 
 // Definition of the PlayListNode class - *do not change*
-struct PlayListNode {
+class PlayListNode {
+public:
     Song song;          // data representing a song
     PlayListNode* next; // pointer to next node in list
-
-    // Constructors
 
     // PARAM: sng = song data
     // POST: Sets song to sng and next to nullptr
@@ -32,6 +31,15 @@ struct PlayListNode {
 // Class should implement a linked list of nodes
 // See assignment description for detailed requirements
 class PlayList {
+    /**
+     * @remarks Lessons:
+     * - Specifications should not explicitly define implementations.
+     * - Copy constructors should always make deep copies.
+     * - .operator==(other) is same as *this == other, evaluating right to left.
+     * - Don't mess with force pushing git!!
+     * - Const correctness relies on its sub-components also being const correct.
+     * - Best to pass by const reference by default, may add overload for std::move.
+     */
 public:
     // Constructors and destructor
     // POST: head of list is set to nullptr

@@ -3,6 +3,61 @@
  * @author Hieu Duong
  * @brief Song PlayList using singly linked list.
  * @date 2022-06-03
+ *
+ * @remarks Worst-case running time in Big-O notation of:
+ *
+ * PlayList Methods:
+ * 1. Default constructor - O(1)
+ * Constant.
+ * Only a few variables are initialized.
+ *
+ * 2. Destructor - O(n)
+ * Linear in list's size.
+ * Traverse through the entire list (n) and destroy each (1) node. n * 1 ~ n.
+ *
+ * 3. Copy constructor - O(n)
+ * Linear in other list's size.
+ * Copy all (n) elements from the other list.
+ *
+ * 4. Overloaded assignment operator - O(n)
+ * Linear in sum (n) of this list's size (n1) and other list's size (n2).
+ * Copy all (n2), swap few (1), destroy all (n1) elements.
+ *
+ * 5. Insert - O(n)
+ * Linear in the position of the wanted element.
+ * Worst when inserting near end, has to traverse (n - 1) elements to get there.
+ *
+ * 6. Remove - O(n)
+ * Linear in the position of the wanted element.
+ * Worst when removing end, has to traverse (n - 1) elements to get in front of it.
+ *
+ * 7. Get - O(n)
+ * Linear in the position of the wanted element.
+ * Worst when getting near end, has to traverse (n - 1) elements to get there.
+ *
+ * 8. Swap - O(n)
+ * Linear in max position of the 2 wanted elements.
+ * Worst when swapping end, has to traverse (n - 1) elements to get in front of it.
+ *
+ * 9. Size - O(1)
+ * Size is cached in a variable.
+ *
+ * Main Function Commands:
+ * 1. Enter a song - O(n)
+ * Linear in the position of the wanted element.
+ * Same as 5. Insert.
+ *
+ * 2. Remove a song - O(n)
+ * Linear in the position of the wanted element.
+ * Same as 6. Remove.
+ *
+ * 3. Swap two songs - O(n)
+ * Linear in max position of the 2 wanted elements.
+ * Same as 8. Swap.
+ *
+ * 4. Print all the songs - O(n^2)
+ * Quadratic in the total number of list's elements.
+ * Loop through all elements (n) with get in each iteration. sum(1..n) ~ n^2.
  */
 #include "PlayList.h"
 #include <iostream>
@@ -44,13 +99,13 @@ int getIntInRange(int low, int high, const std::string& promptMsg, const std::st
 }
 
 enum class SongField { name, artist, length };
-bool isValidSong(const std::string& str, SongField field) {
+bool isValidSong(const std::string& input, SongField field) {
     switch (field) {
     case SongField::name:
     case SongField::artist:
-        return !str.empty();
+        return !input.empty();
     case SongField::length:
-        return isInt(str) && std::stoi(str) > 0;
+        return isInt(input) && std::stoi(input) > 0;
     default:
         throw std::invalid_argument("Unimplemented song field in validator function.");
         return false;
@@ -121,7 +176,7 @@ namespace menu {
         const unsigned pos2 = getIntInRange(1, size,
             "with the song at position (1 to " + std::to_string(size) + "):", "Invalid position.");
         if (pos1 == pos2) {
-            std::cout << "Same positions (" << pos1 << "). Nothing to swap.\n\n";
+            std::cout << "Same position (" << pos1 << "). Nothing to swap.\n\n";
             return;
         }
         pl.swap(pos1 - 1, pos2 - 1);

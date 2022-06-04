@@ -1,8 +1,8 @@
 ## For assignment 1 of CMPT 225.
 
 CPPFLAGS := -std=c++11 -Wall -Wextra -Werror -Wfatal-errors -Wno-sign-compare -Wnon-virtual-dtor -g
-CPPFLAGS += --coverage # -O3
-LDLIBS   := --coverage
+CPPFLAGS += # --coverage
+LDLIBS   := # --coverage
 CC := $(CXX)
 
 .DELETE_ON_ERROR:
@@ -36,7 +36,7 @@ cov: test
 	@echo ""
 	gcovr --html-self-contained --html-details coverage.html
 
-dist:
+dist: clean
 ## Different for each assignment. ##
 	zip $(ARCH) $(MAIN).cpp PlayList.*
 
