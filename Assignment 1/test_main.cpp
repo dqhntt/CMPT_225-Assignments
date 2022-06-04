@@ -12,9 +12,9 @@ bool operator==(const PlayList& lhs, const PlayList& rhs) {
         return false;
     }
     for (unsigned i = 0; i < size; i++) {
-        if ((lhs.get(i).getLength() != rhs.get(i).getLength())
-            /*|| (lhs.get(i).getArtist() != rhs.get(i).getArtist())
-            || (lhs.get(i).getName() != rhs.get(i).getName())*/) {
+        if ((lhs.get(i).length() != rhs.get(i).length())
+            /*|| (lhs.get(i).artist() != rhs.get(i).artist())
+            || (lhs.get(i).name() != rhs.get(i).name())*/) {
             return false;
         }
     }
@@ -176,23 +176,23 @@ TEST_CASE("Full tests") {
             INFO("Get and remove");
             CHECK_THROWS(a.get(-1));
             CHECK_THROWS(a.remove(-1));
-            CHECK(a.get(0).getLength() == 12);
-            CHECK(a.get(1).getLength() == 14);
-            CHECK(a.get(2).getLength() == 13);
-            CHECK(a.get(3).getLength() == 11);
-            CHECK(a.remove(4).getName() == a.get(4).getName());
+            CHECK(a.get(0).length() == 12);
+            CHECK(a.get(1).length() == 14);
+            CHECK(a.get(2).length() == 13);
+            CHECK(a.get(3).length() == 11);
+            CHECK(a.remove(4).name() == a.get(4).name());
             CHECK_THROWS(a.get(5));
             CHECK_THROWS(a.remove(5));
             CHECK_THROWS(a.get(4));
             CHECK_THROWS(a.remove(4));
-            CHECK(a.remove(2).getArtist() == a.get(2).getArtist()); // a = 12 14 11
+            CHECK(a.remove(2).artist() == a.get(2).artist()); // a = 12 14 11
             CHECK_THROWS(a.get(3));
             CHECK_THROWS(a.remove(3));
-            CHECK(a.get(2).getLength() == 11);
+            CHECK(a.get(2).length() == 11);
             CHECK_THROWS(b.get(-1));
             CHECK_THROWS(b.remove(-1));
-            CHECK(b.get(0).getName() == "n2");
-            CHECK(b.get(1).getArtist() == "a22");
+            CHECK(b.get(0).name() == "n2");
+            CHECK(b.get(1).artist() == "a22");
             CHECK_THROWS(b.get(2));
             CHECK_THROWS(b.get(3));
         }
@@ -210,11 +210,11 @@ TEST_CASE("Full tests") {
             INFO("Copy construct");
             CHECK(a == c);
             CHECK_THROWS(c.get(-1));
-            CHECK(c.get(0).getName() == a.get(0).getName());
-            CHECK(c.get(1).getArtist() == a.get(1).getArtist());
-            CHECK(c.get(2).getArtist() == a.get(2).getArtist());
-            CHECK(c.get(2).getLength() == a.get(2).getLength());
-            CHECK(c.get(2).getArtist() == "a11");
+            CHECK(c.get(0).name() == a.get(0).name());
+            CHECK(c.get(1).artist() == a.get(1).artist());
+            CHECK(c.get(2).artist() == a.get(2).artist());
+            CHECK(c.get(2).length() == a.get(2).length());
+            CHECK(c.get(2).artist() == "a11");
             CHECK_THROWS(c.get(3));
             CHECK(c == a);
         }
@@ -260,14 +260,14 @@ TEST_CASE("Full tests") {
                 INFO("First 2");
                 a.swap(0, 1); // a = 14 12 11 10
                 CHECK(a != c);
-                CHECK(a.get(0).getLength() == 14);
-                CHECK(a.get(1).getLength() == 12);
-                CHECK(a.get(2).getLength() == 11);
-                CHECK(a.get(3).getLength() == 10);
-                CHECK(c.get(0).getLength() == 12);
-                CHECK(c.get(1).getLength() == 14);
-                CHECK(c.get(2).getLength() == 11);
-                CHECK(c.get(3).getLength() == 10);
+                CHECK(a.get(0).length() == 14);
+                CHECK(a.get(1).length() == 12);
+                CHECK(a.get(2).length() == 11);
+                CHECK(a.get(3).length() == 10);
+                CHECK(c.get(0).length() == 12);
+                CHECK(c.get(1).length() == 14);
+                CHECK(c.get(2).length() == 11);
+                CHECK(c.get(3).length() == 10);
                 c.swap(1, 0);
                 CHECK(c == a); // c = a = 14 12 11 10
             }
@@ -275,14 +275,14 @@ TEST_CASE("Full tests") {
                 INFO("Last 2");
                 a.swap(3, 2); // a = 14 12 10 11
                 CHECK(a != c);
-                CHECK(a.get(0).getLength() == 14);
-                CHECK(a.get(1).getLength() == 12);
-                CHECK(a.get(2).getLength() == 10);
-                CHECK(a.get(3).getLength() == 11);
-                CHECK(c.get(0).getLength() == 14);
-                CHECK(c.get(1).getLength() == 12);
-                CHECK(c.get(2).getLength() == 11);
-                CHECK(c.get(3).getLength() == 10);
+                CHECK(a.get(0).length() == 14);
+                CHECK(a.get(1).length() == 12);
+                CHECK(a.get(2).length() == 10);
+                CHECK(a.get(3).length() == 11);
+                CHECK(c.get(0).length() == 14);
+                CHECK(c.get(1).length() == 12);
+                CHECK(c.get(2).length() == 11);
+                CHECK(c.get(3).length() == 10);
                 c.swap(2, 3);
                 CHECK(c == a); // c = a = 14 12 10 11
             }
@@ -290,14 +290,14 @@ TEST_CASE("Full tests") {
                 INFO("2 ends");
                 a.swap(0, 3); // a = 11 12 10 14
                 CHECK(a != c);
-                CHECK(a.get(0).getLength() == 11);
-                CHECK(a.get(1).getLength() == 12);
-                CHECK(a.get(2).getLength() == 10);
-                CHECK(a.get(3).getLength() == 14);
-                CHECK(c.get(0).getLength() == 14);
-                CHECK(c.get(1).getLength() == 12);
-                CHECK(c.get(2).getLength() == 10);
-                CHECK(c.get(3).getLength() == 11);
+                CHECK(a.get(0).length() == 11);
+                CHECK(a.get(1).length() == 12);
+                CHECK(a.get(2).length() == 10);
+                CHECK(a.get(3).length() == 14);
+                CHECK(c.get(0).length() == 14);
+                CHECK(c.get(1).length() == 12);
+                CHECK(c.get(2).length() == 10);
+                CHECK(c.get(3).length() == 11);
                 c.swap(3, 0);
                 CHECK(c == a); // c = a = 11 12 10 14
             }
@@ -305,14 +305,14 @@ TEST_CASE("Full tests") {
                 INFO("Middle 2");
                 a.swap(1, 2); // a = 11 10 12 14
                 CHECK(a != c);
-                CHECK(a.get(0).getLength() == 11);
-                CHECK(a.get(1).getLength() == 10);
-                CHECK(a.get(2).getLength() == 12);
-                CHECK(a.get(3).getLength() == 14);
-                CHECK(c.get(0).getLength() == 11);
-                CHECK(c.get(1).getLength() == 12);
-                CHECK(c.get(2).getLength() == 10);
-                CHECK(c.get(3).getLength() == 14);
+                CHECK(a.get(0).length() == 11);
+                CHECK(a.get(1).length() == 10);
+                CHECK(a.get(2).length() == 12);
+                CHECK(a.get(3).length() == 14);
+                CHECK(c.get(0).length() == 11);
+                CHECK(c.get(1).length() == 12);
+                CHECK(c.get(2).length() == 10);
+                CHECK(c.get(3).length() == 14);
                 c.swap(2, 1);
                 CHECK(c == a); // c = a = 11 10 12 14
             }
@@ -320,14 +320,14 @@ TEST_CASE("Full tests") {
                 INFO("1 last, 1 middle");
                 a.swap(3, 1); // a = 11 14 12 10
                 CHECK(a != c);
-                CHECK(a.get(0).getLength() == 11);
-                CHECK(a.get(1).getLength() == 14);
-                CHECK(a.get(2).getLength() == 12);
-                CHECK(a.get(3).getLength() == 10);
-                CHECK(c.get(0).getLength() == 11);
-                CHECK(c.get(1).getLength() == 10);
-                CHECK(c.get(2).getLength() == 12);
-                CHECK(c.get(3).getLength() == 14);
+                CHECK(a.get(0).length() == 11);
+                CHECK(a.get(1).length() == 14);
+                CHECK(a.get(2).length() == 12);
+                CHECK(a.get(3).length() == 10);
+                CHECK(c.get(0).length() == 11);
+                CHECK(c.get(1).length() == 10);
+                CHECK(c.get(2).length() == 12);
+                CHECK(c.get(3).length() == 14);
                 c.swap(1, 3);
                 CHECK(c == a); // c = a = 11 14 12 10
             }
@@ -335,14 +335,14 @@ TEST_CASE("Full tests") {
                 INFO("1 first, 1 middle");
                 a.swap(0, 2); // a = 12 14 11 10
                 CHECK(a != c);
-                CHECK(a.get(0).getLength() == 12);
-                CHECK(a.get(1).getLength() == 14);
-                CHECK(a.get(2).getLength() == 11);
-                CHECK(a.get(3).getLength() == 10);
-                CHECK(c.get(0).getLength() == 11);
-                CHECK(c.get(1).getLength() == 14);
-                CHECK(c.get(2).getLength() == 12);
-                CHECK(c.get(3).getLength() == 10);
+                CHECK(a.get(0).length() == 12);
+                CHECK(a.get(1).length() == 14);
+                CHECK(a.get(2).length() == 11);
+                CHECK(a.get(3).length() == 10);
+                CHECK(c.get(0).length() == 11);
+                CHECK(c.get(1).length() == 14);
+                CHECK(c.get(2).length() == 12);
+                CHECK(c.get(3).length() == 10);
                 c.swap(2, 0);
                 CHECK(c == a); // c = a = 12 14 11 10
             }                                    
@@ -370,14 +370,14 @@ TEST_CASE("Full tests") {
             CHECK(c != a);
             CHECK(a.size() == 4);
             CHECK(c.size() == 3);
-            CHECK(a.get(0).getLength() == 12);
-            CHECK(c.get(0).getLength() == 14);
+            CHECK(a.get(0).length() == 12);
+            CHECK(c.get(0).length() == 14);
             REQUIRE_NOTHROW(a.swap(c)); // a[3], c[4]
             CHECK(a != c);
             CHECK(a.size() == 3);
             CHECK(c.size() == 4);
-            CHECK(a.get(1).getLength() == 11);
-            CHECK(c.get(1).getLength() == 14);
+            CHECK(a.get(1).length() == 11);
+            CHECK(c.get(1).length() == 14);
             REQUIRE_NOTHROW(a.swap(a)); // Itself.
             CHECK(a == a);
             CHECK(c == c);
@@ -392,7 +392,7 @@ TEST_CASE("Stress tests" * doctest::timeout(2)) {
         INFO("Insert at front"); // BIG_NUM ... 1
         for (int i = 1; i < BIG_NUM; i++) {
             REQUIRE_NOTHROW(rev.insert({ "s", "t", i }, 0));
-            REQUIRE(rev.get(0).getLength() == i);
+            REQUIRE(rev.get(0).length() == i);
             REQUIRE(rev.size() == i);
         }
     }
@@ -413,7 +413,7 @@ TEST_CASE("Stress tests" * doctest::timeout(2)) {
                 WARN_NOTHROW(ord.swap(i, size - i - 1));
             }
             for (unsigned i = 0; i < size; i++) {
-                REQUIRE(ord.get(i).getLength() == i + 1);
+                REQUIRE(ord.get(i).length() == i + 1);
             }
         }
         REQUIRE(size == ord.size());

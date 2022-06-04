@@ -121,15 +121,13 @@ void PlayList::swap(PlayList& other) {
 }
 
 /**
- * @note Modified copy-and-swap idiom.
+ * @note Copy-and-swap idiom.
  * 
  * @see http://gotw.ca/gotw/059.htm
  *      https://youtu.be/vLinb2fgkHk?t=2245
  */
-PlayList& PlayList::operator=(const PlayList& other) {
-    if (this != &other) {
-        PlayList(other).swap(*this);
-    }
+PlayList& PlayList::operator=(PlayList other) {
+    this->swap(other);
     return *this;
 }
 
@@ -138,10 +136,9 @@ void PlayList::insert(Song song, unsigned pos) {
         throw std::out_of_range("insert(song, " + std::to_string(pos) + ") out of bounds");
     }
     if (pos == 0) {
+        head_ = new Node(std::move(song), head_);
         if (size_ == 0) {
-            tail_ = head_ = new Node(std::move(song));
-        } else {
-            head_ = new Node(std::move(song), head_);
+            tail_ = head_;
         }
     } else if (pos == size_) {
         append(tail_, std::move(song));
@@ -156,26 +153,25 @@ Song PlayList::remove(unsigned pos) {
     if (pos >= size_) {
         throw std::out_of_range("remove(" + std::to_string(pos) + ") out of bounds");
     }
+    Song song;
     if (pos == 0) {
         Node* const old = head_;
-        Song song = std::move(old->song);
+        song = std::move(old->song);
         advance(head_, 1);
         delete old;
         if (size_ == 1) {
             tail_ = head_; // = nullptr
         }
-        size_--;
-        return song;
     } else {
         Node* const prev = next(head_, pos - 1);
-        Song song = std::move(prev->next->song);
+        song = std::move(prev->next->song);
         delete extractNodeAfter(prev);
         if (pos == size_ - 1) {
             tail_ = prev;
         }
-        size_--;
-        return song;
     }
+    size_--;
+    return song;
 }
 
 void PlayList::swap(unsigned pos1, unsigned pos2) {

@@ -8,15 +8,15 @@
 #include "Song.h"
 
 // Definition of the PlayListNode class - *do not change*
-class PlayListNode {
-public:
+struct PlayListNode {
     Song song;          // data representing a song
     PlayListNode* next; // pointer to next node in list
 
     // PARAM: sng = song data
     // POST: Sets song to sng and next to nullptr
     PlayListNode(Song sng)
-        : PlayListNode(std::move(sng), nullptr)
+        : song(std::move(sng))
+        , next(nullptr)
     { }
 
     // PARAM: sng = song data, nxt = pointer to next node
@@ -39,6 +39,8 @@ class PlayList {
      * - Don't mess with force pushing git!!
      * - Const correctness relies on its sub-components also being const correct.
      * - Best to pass by const reference by default, may add overload for std::move.
+     *   (https://youtu.be/xnqTKD8uD64?t=4006)
+     * - Perfect forwarding is hard to write perfectly.
      */
 public:
     // Constructors and destructor
@@ -56,7 +58,7 @@ public:
     // POST: dynamic memory of calling object deallocated (except
     //       under self-assignment), calling object is set to a
     //       a deep copy of other
-    PlayList& operator=(const PlayList& other);
+    PlayList& operator=(PlayList other);
 
     // Mutators
     // PRE: 0 <= i <= length of list
@@ -73,6 +75,9 @@ public:
     // PARAM: pos1, pos2 - 0-based positions of elements to be swapped
     // POST: Songs at positions pos1 and pos2 are swapped
     void swap(unsigned pos1, unsigned pos2);
+    
+    // Container swap
+    void swap(PlayList& other);
 
     // Accessor
     // PRE: 0 <= pos <= length of list-1
@@ -86,6 +91,4 @@ public:
 private:
     unsigned size_;
     PlayListNode *head_, *tail_;
-
-    void swap(PlayList& other);
 };

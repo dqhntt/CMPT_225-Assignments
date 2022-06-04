@@ -134,18 +134,17 @@ namespace menu {
         auto validateSong = [](SongField field) {
             return [field](const std::string& str) { return isValidSong(str, field); };
         };
-        const std::string songName
-            = getValidInput("Song name:", "Invalid name.", validateSong(SongField::name));
-        Song song = {
-            songName, getValidInput("Artist:", "Invalid artist.", validateSong(SongField::artist)),
+        const Song song = {
+            getValidInput("Song name:", "Invalid name.", validateSong(SongField::name)),
+            getValidInput("Artist:", "Invalid artist.", validateSong(SongField::artist)),
             std::stoi(getValidInput("Length:", "Invalid length.", validateSong(SongField::length)))
         };
         const unsigned size = pl.size();
         const unsigned pos = getIntInRange(1, size + 1,
             "Position (1" + (size > 0 ? (" to " + std::to_string(size + 1)) : "") + "):",
             "Invalid position.");
-        pl.insert(std::move(song), pos - 1);
-        std::cout << "You entered " << songName << " at position " << pos
+        pl.insert(song, pos - 1);
+        std::cout << "You entered " << song.name() << " at position " << pos
                   << " in the play list.\n\n";
     }
 
@@ -161,7 +160,7 @@ namespace menu {
                         "Position (1" + (size > 1 ? (" to " + std::to_string(size)) : "") + "):",
                         "Invalid position.")
                     - 1)
-                  .getName();
+                  .name();
         std::cout << "You removed " << removedSongName << " from the play list.\n\n";
     }
 
@@ -186,9 +185,9 @@ namespace menu {
     void printSongs(const PlayList& pl) {
         const unsigned size = pl.size();
         for (unsigned i = 0; i < size; i++) {
-            Song song = pl.get(i);
-            std::cout << " " << i + 1 << " " << song.getName() << " (" << song.getArtist() << ") "
-                      << song.getLength() << "s\n";
+            const Song song = pl.get(i);
+            std::cout << " " << i + 1 << " " << song.name() << " (" << song.artist() << ") "
+                      << song.length() << "s\n";
         }
         std::cout << "There are " << size << " songs in the play list.\n\n";
     }

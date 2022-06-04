@@ -7,36 +7,31 @@
 
 using std::out_of_range;
 using std::runtime_error;
+using std::string;
 
 // Constructor
-Song::Song(string nm, string art, int len) : name(nm), artist(art), length(len)
+Song::Song(std::string name, std::string artist, int length)
+    : name_(std::move(name))
+    , artist_(std::move(artist))
+    , length_(length)
 {
     if (length < 1) {
-        throw out_of_range("negative run time");
+        throw std::invalid_argument("negative run time");
     }
-    if (name.empty()) {
-        throw runtime_error("a song must have a name");
+    if (name_.empty()) {
+        throw std::invalid_argument("a song must have a name");
     }
-    if (artist.empty()) {
-        throw runtime_error("a song must have an artist");
+    if (artist_.empty()) {
+        throw std::invalid_argument("a song must have an artist");
     }
 }
 
 // Accessors
 // POST: returns name of song
-string Song::getName()
-{
-	return name;
-}
+const string& Song::name() const { return name_; }
 
 // POST: returns recording artist of song
-string Song::getArtist()
-{
-	return artist;
-}
+const string& Song::artist() const { return artist_; }
 
 // POST: returns length in seconds of song
-int Song::getLength()
-{
-	return length;
-}
+int Song::length() const { return length_; }

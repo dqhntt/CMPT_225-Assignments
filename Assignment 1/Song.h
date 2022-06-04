@@ -4,20 +4,18 @@
 
 #pragma once
 #include <string>
-using std::string;
 
 class Song {
 public:
-	// Constructor
-	Song(string nm, string art, int len);
+    Song() = default;
+    Song(std::string name, std::string artist, int length);
 
-	// Accessors
-	string getName();
-	string getArtist();
-	int getLength();
+    const std::string& name() const;
+    const std::string& artist() const;
+    int length() const;
 
 private:
-	string name;
-	string artist;
-	int length;
+    std::string name_;
+    std::string artist_;
+    int length_ { -1 };
 };
