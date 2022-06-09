@@ -6,17 +6,17 @@ CC := $(CXX)
 .DELETE_ON_ERROR:
 .PHONY: run test clean cov dist distclean
 
-infixeval: Scanner.o eval.o
+eval: Scanner.o eval.o
 
 Scanner.o: Scanner.cpp Scanner.h
 
 eval.o: eval.cpp Scanner.h Stack.h
 
-run: infixeval
-	./infixeval
+run: eval
+	./eval
 
 clean:
-	rm -f *.o infixeval
+	rm -f *.o eval
 
 cov: test
 	@echo ""

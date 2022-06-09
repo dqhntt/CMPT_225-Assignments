@@ -1,80 +1,80 @@
-
 #include "Scanner.h"
-
-
 using namespace std;
 
-
-// Desc:  Util:  string + char
-string operator+(string &lhs, char &rhs) {
-    char c[2]; c[0] = rhs; c[1] = 0;
-    return lhs+c;
-}
-
-
 // Desc:  Display a Token
-ostream &operator<<(ostream &os, Token &rhs) {
-    if (rhs.tt == eof) os << "eof";
-    else if (rhs.tt == errtok) os << "err";
-    else if (rhs.tt == integer) os << rhs.val;
-    else os << rhs.text;
+ostream& operator<<(ostream& os, const Token& token) {
+    if (token.type == TokenType::eof)
+        os << "eof";
+    else if (token.type == TokenType::error)
+        os << "err";
+    else if (token.type == TokenType::integer)
+        os << token.value;
+    else
+        os << token.text;
 
     return os;
 } // os << Token
 
-
 // Desc:  Constructor
-Scanner::Scanner(istream &str) {
-    this->str = &str;
-    buf[0] = buf[1] = 0;
-}
-
-
-// Desc:  Util:  Test for newline
-int newl(char c) { return (c == '\n'); }
-
+Scanner::Scanner(istream& is)
+    : iStream_ { is }
+    , buffer_ { '\0', '\0' }
+{ }
 
 // Desc:  Return the next token
 Token Scanner::getnext() {
-    Token ret; ret.text = "";
-    if (buf[0] == 0) { buf[0] = str->get(); }
-
-
-    // collapse whitespace
-    while (isspace(buf[0]) || (buf[0] == 13) || (buf[0] == '\n')) {
-        buf[0] = str->get(); 
-        if (str->eof()) break;
+    Token ret;
+    ret.text.clear();
+    if (buffer_[0] == 0) {
+        buffer_[0] = iStream_.get();
     }
 
+    // collapse whitespace
+    while (isspace(buffer_[0]) || (buffer_[0] == '\r') || (buffer_[0] == '\n')) {
+        buffer_[0] = iStream_.get();
+        if (iStream_.eof())
+            break;
+    }
 
-    // case 1: eof    
-    if (str->eof()) { ret.tt = eof; ret.text = ""; return ret; }
-
-
-    // case 2: numerical-   [0-9]+
-    if (isdigit(buf[0])) {
-        ret.tt = integer; ret.text = buf;
-        buf[0] = str->get();
-        while (isdigit(buf[0])) {
-            ret.text += buf;
-            buf[0] = str->get();
-        }
-        ret.val = stod(ret.text, NULL);
-        if (isspace(buf[0]) || (buf[0] == 13) || (buf[0] == '\n')) buf[0] = 0;
+    // case 1: eof
+    if (iStream_.eof()) {
+        ret.type = TokenType::eof;
+        ret.text.clear();
         return ret;
     }
 
+    // case 2: numerical-   [0-9]+
+    if (isdigit(buffer_[0])) {
+        ret.type = TokenType::integer;
+        ret.text = buffer_;
+        buffer_[0] = iStream_.get();
+        while (isdigit(buffer_[0])) {
+            ret.text += buffer_;
+            buffer_[0] = iStream_.get();
+        }
+        ret.value = stod(ret.text);
+        if (isspace(buffer_[0]) || (buffer_[0] == '\r') || (buffer_[0] == '\n'))
+            buffer_[0] = '\0';
+        return ret;
+    }
 
     // case 3: symbol
-    ret.text = buf; 
-    if (buf[0] == '+') { ret.tt = pltok; buf[0] = 0; }
-    else if (buf[0] == '-') { ret.tt = mitok; buf[0] = 0; }
-    else if (buf[0] == '*') { ret.tt = asttok; buf[0] = 0; }
-    else if (buf[0] == '/') { ret.tt = slashtok; buf[0] = 0; }
-    else if (buf[0] == '(') { ret.tt = lptok; buf[0] = 0; }
-    else if (buf[0] == ')') { ret.tt = rptok; buf[0] = 0; }
-    else { ret.tt = errtok; buf[0] = 0; }
+    ret.text = buffer_;
+    if (buffer_[0] == '+') {
+        ret.type = TokenType::plus;
+    } else if (buffer_[0] == '-') {
+        ret.type = TokenType::minus;
+    } else if (buffer_[0] == '*') {
+        ret.type = TokenType::asterisk;
+    } else if (buffer_[0] == '/') {
+        ret.type = TokenType::slash;
+    } else if (buffer_[0] == '(') {
+        ret.type = TokenType::leftParen;
+    } else if (buffer_[0] == ')') {
+        ret.type = TokenType::rightParen;
+    } else {
+        ret.type = TokenType::error;
+    }
+    buffer_[0] = '\0';
     return ret;
 }
-
-

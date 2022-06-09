@@ -1,76 +1,63 @@
-
+#pragma once
 
 // Desc:  The usual fare.  Descriptions, invariants, pre and post are
-//        omitted because they are duplicated elsewhere, namely Question 1.
+//        omitted because they are duplicated elsewhere, namely Assignment 1.
 template <class T>
 class Stack {
-    class Node {
-        public: 
-            T data;
-            Node *next;
+public:
+    Stack();
+    ~Stack();
+    void push(T x);
+    T pop();
+    const T& peek() const;
+    bool isEmpty() const;
+
+private:
+    struct Node {
+        T data;
+        Node* next;
     };
-    private:
-        Node* head;
-    public:
-        Stack();
-        ~Stack();
-        void push(T x);
-        T pop();
-        T peek();
-        bool isEmpty();
+    Node* head_;
 };
 
-
-
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
 
+template <class T>
+Stack<T>::Stack()
+    : head_(nullptr)
+{ }
 
-template <class T> 
-Stack<T>::Stack() {
-    head = NULL;
-}
-
-
-template <class T> 
+template <class T>
 void Stack<T>::push(T x) {
-    Node *newhead = new Node;
-    newhead->data = x;
-    newhead->next = head;
-    head = newhead;
+    head_ = new Node { std::move(x), head_ };
 }
 
-
-template <class T> 
+template <class T>
 T Stack<T>::pop() {
-    T ret = head->data;
-    Node *old_head = head;
-    head = head->next;
+    T ret = std::move(head_->data);
+    Node* const old_head = head_;
+    head_ = head_->next;
     delete old_head;
     return ret;
 }
 
-
-template <class T> 
-T Stack<T>::peek() {
-    return head->data;
+template <class T>
+const T& Stack<T>::peek() const {
+    return head_->data;
 }
 
-
-template <class T> 
-bool Stack<T>::isEmpty() {
-    return (head == NULL);
+template <class T>
+bool Stack<T>::isEmpty() const {
+    return (head_ == nullptr);
 }
 
-
-template <class T> 
+template <class T>
 Stack<T>::~Stack() {
-    Node *p = head;
-    while (p != NULL) {
-        head = head->next;
+    Node* p = head_;
+    while (p != nullptr) {
+        head_ = head_->next;
         delete p;
-        p = head;
+        p = head_;
     }
 }
-
-
