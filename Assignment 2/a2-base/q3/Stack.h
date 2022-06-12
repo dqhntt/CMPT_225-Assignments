@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 // Desc:  The usual fare.  Descriptions, invariants, pre and post are
 //        omitted because they are duplicated elsewhere, namely Assignment 1.
 template <class T>
@@ -35,7 +36,7 @@ void Stack<T>::push(T x) {
 
 template <class T>
 T Stack<T>::pop() {
-    T ret = std::move(head_->data);
+    const T ret = std::move(head_->data);
     Node* const old_head = head_;
     head_ = head_->next;
     delete old_head;
