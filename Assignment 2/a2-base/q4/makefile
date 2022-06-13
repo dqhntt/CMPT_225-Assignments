@@ -18,7 +18,7 @@ run: main
 	./$<
 
 clean:
-	rm -f x *.o
+	rm -f main *.o
 
 cov: test
 	@echo ""

@@ -1,48 +1,42 @@
+#pragma once
+#include <cstddef>
 
 // Desc:  Implementation of an int sequence with enqueue/dequeue in FIFO order
 class Queue {
-    private:
-        static unsigned const INITIAL_SIZE = 6;
-        int arr[INITIAL_SIZE];  // replace this by int * arr in Question 4(a)
+public:
+    // Desc:  Constructor
+    Queue();
 
-        unsigned size;        // number of elements in the queue
-        unsigned capacity;    // number of slots in the array
-        unsigned frontindex;  // index the topmost element
-        unsigned backindex;   // index where the next element will be placed
+    // Desc:  Destructor
+    ~Queue();
 
-    public:
-        // Desc:  Constructor
-        Queue();
+    // Desc:  Copy Constructor
+    Queue(const Queue& other);
 
+    // Desc:  Assignment operator
+    Queue& operator=(const Queue& other);
 
-        // Desc:  Destructor
-        ~Queue();
+    // Desc:  Inserts element x at the back (O(1))
+    void enqueue(int x);
 
+    // Desc:  Removes the frontmost element (O(1))
+    //  Pre:  Queue not empty
+    void dequeue();
 
-        // Desc:  Copy Constructor
-        Queue(const Queue &other);
+    // Desc:  Returns a copy of the frontmost element (O(1))
+    //  Pre:  Queue not empty
+    int peek() const;
 
+    // Desc:  Returns true if and only if queue empty (O(1))
+    bool isEmpty() const;
 
-        // Desc:  Assignment operator
-        Queue & operator=(const Queue &rhs);
+private:
+    size_t size_;       // number of elements in the queue
+    size_t capacity_;   // number of slots in the array
+    size_t frontIndex_; // index the topmost element
+    size_t backIndex_;  // index where the next element will be placed
+    int* arr_;
 
-
-        // Desc:  Inserts element x at the back (O(1))
-        void enqueue(int x);
-
-
-        // Desc:  Removes the frontmost element (O(1))
-        //  Pre:  Queue not empty
-        void dequeue();
-
-
-        // Desc:  Returns a copy of the frontmost element (O(1))
-        //  Pre:  Queue not empty
-        int peek() const;
-
-
-        // Desc:  Returns true if and only if queue empty (O(1))
-        bool isEmpty() const;
+    void resize(size_t newCapacity);
+    void swap(Queue& other);
 };
-
-
