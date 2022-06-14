@@ -12,7 +12,7 @@ StkTest.o: StkTest.cpp Stack.o
 
 Stack.o: Stack.cpp Stack.h
 
-Test: Test.cpp Stack.o
+Test: Test.o Stack.o
 
 run: StkTest
 	./$<
@@ -21,7 +21,7 @@ test: Test
 	./$<
 
 clean:
-	rm -f *.o StkTest Test
+	rm -f *.o *.gcno *.gcda *.gcov coverage.* StkTest Test
 
 cov: test
 	@echo ""

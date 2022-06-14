@@ -16,7 +16,7 @@ run: eval
 	./$<
 
 clean:
-	rm -f *.o eval
+	rm -f *.o *.gcno *.gcda *.gcov coverage.* eval
 
 cov: test
 	@echo ""

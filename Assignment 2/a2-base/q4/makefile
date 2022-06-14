@@ -14,11 +14,16 @@ Queue.o: Queue.cpp Queue.h
 
 main.o:	main.cpp Queue.h
 
+test_main: test_main.o Queue.o
+
 run: main
 	./$<
 
+test: test_main
+	./$<
+
 clean:
-	rm -f main *.o
+	rm -f *.o *.gcno *.gcda *.gcov coverage.* main test_main
 
 cov: test
 	@echo ""

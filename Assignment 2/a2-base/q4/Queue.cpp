@@ -43,7 +43,7 @@ Queue& Queue::operator=(const Queue& other) {
         if (size_ < other.size_) {
             Queue(other).swap(*this);
         } else {
-            // Traverse and copy.
+            // Flatten circular array.
             for (size_t i = 0; i < size_; ++i) {
                 arr_[i] = other.arr_[(other.frontIndex_ + i) % other.capacity_];
             }
@@ -55,16 +55,12 @@ Queue& Queue::operator=(const Queue& other) {
     return *this;
 }
 
-// Pre: newCapacity >= size_
+// Desc:  Resize capacity_ to newCapacity.
+// Pre:   newCapacity >= size_
 void Queue::resize(size_t newCapacity) {
     if (newCapacity < size_) {
         throw std::logic_error("New capacity (" + std::to_string(newCapacity)
             + ") can't be smaller than size (" + std::to_string(size_) + ").");
-    }
-    if (newCapacity == 0) {
-        delete[] arr_;
-        arr_ = nullptr;
-        return;
     }
     int* const newArr = new int[newCapacity];
     for (size_t i = 0; i < size_; ++i) {
