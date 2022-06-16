@@ -37,6 +37,9 @@ private:
     size_t backIndex_;  // index where the next element will be placed
     int* arr_;
 
+    // Desc:  Resize internal capacity_ to newCapacity.
+    //  Pre:  newCapacity >= size_
+    // Post:  Internal array is resized.
+    //        Front and back indices are updated.
     void resize(size_t newCapacity);
-    void swap(Queue& other);
 };

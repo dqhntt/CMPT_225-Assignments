@@ -29,34 +29,29 @@ Queue::Queue(const Queue& other)
     }
 }
 
-void Queue::swap(Queue& other) {
-    std::swap(arr_, other.arr_);
-    std::swap(size_, other.size_);
-    std::swap(capacity_, other.capacity_);
-    std::swap(frontIndex_, other.frontIndex_);
-    std::swap(backIndex_, other.backIndex_);
-}
-
 // Desc:  Assignment operator
 Queue& Queue::operator=(const Queue& other) {
     if (this != &other) {
-        if (size_ < other.size_) {
-            Queue(other).swap(*this);
-        } else {
-            // Flatten circular array.
-            for (size_t i = 0; i < size_; ++i) {
-                arr_[i] = other.arr_[(other.frontIndex_ + i) % other.capacity_];
-            }
-            size_ = other.size_;
-            frontIndex_ = 0;
-            backIndex_ = size_;
+        if (capacity_ < other.size_) {
+            delete[] arr_;
+            arr_ = new int[other.size_];
+            capacity_ = other.size_;
         }
+        // Flatten circular array and copy over.
+        for (size_t i = 0; i < other.size_; ++i) {
+            arr_[i] = other.arr_[(other.frontIndex_ + i) % other.capacity_];
+        }
+        size_ = other.size_;
+        frontIndex_ = 0;
+        backIndex_ = size_;
     }
     return *this;
 }
 
-// Desc:  Resize capacity_ to newCapacity.
-// Pre:   newCapacity >= size_
+// Desc:  Resize internal capacity_ to newCapacity.
+//  Pre:  newCapacity >= size_
+// Post:  Internal array is resized.
+//        Front and back indices are updated.
 void Queue::resize(size_t newCapacity) {
     if (newCapacity < size_) {
         throw std::logic_error("New capacity (" + std::to_string(newCapacity)
@@ -76,19 +71,7 @@ void Queue::resize(size_t newCapacity) {
 // Desc:  Inserts element x at the back (O(1))
 void Queue::enqueue(int x) {
     if (size_ >= capacity_) {
-        if (sizeof(capacity_) > 4) { // > 32 bits.
-            this->resize(2 * capacity_);
-        } else {
-            size_t newCapacity = INITIAL_SIZE;
-            // Check for unsigned overflow.
-            for (size_t n = capacity_; newCapacity <= capacity_; --n) {
-                newCapacity = capacity_ + n;
-                if (n <= 0) {
-                    throw std::overflow_error("Fatal error when resizing queue.");
-                }
-            }
-            this->resize(newCapacity);
-        }
+        this->resize(2 * capacity_);
     }
     arr_[backIndex_] = x;
     backIndex_ = (backIndex_ + 1) % capacity_;

@@ -1,24 +1,34 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest/doctest.h"
 
+// g++ -std=c++11 -Wall -Wfatal-errors -g -fsanitize=undefined,address -o test test_main.cpp Queue.cpp && ./test
+
 #include "Queue.h"
-#include <cstddef>
 #include <stdexcept>
 #include <vector>
 
-bool operator==(const Queue& lhs, const Queue& rhs) {
-    Queue lcopy(lhs), rcopy = rhs;
-    while (!lcopy.isEmpty()) {
-        if (lcopy.peek() != rcopy.peek()) {
+static bool operator==(Queue lhs, Queue rhs) {
+    // Also check if they share the same memory.
+    while (!lhs.isEmpty() && !rhs.isEmpty()) {
+        const int n = lhs.peek();
+        lhs.dequeue();
+        if (n != rhs.peek()) {
             return false;
         }
-        lcopy.dequeue();
-        rcopy.dequeue();
+        rhs.dequeue();
     }
-    return lcopy.isEmpty() && rcopy.isEmpty();
+    return lhs.isEmpty() && rhs.isEmpty();
 }
 
-bool operator!=(const Queue& lhs, const Queue& rhs) { return !(lhs == rhs); }
+static bool operator!=(const Queue& lhs, const Queue& rhs) { return !(lhs == rhs); }
+
+static std::ostream& operator<<(std::ostream& os, Queue q) {
+    while (!q.isEmpty()) {
+        os << q.peek() << ' ';
+        q.dequeue();
+    }
+    return os;
+}
 
 SCENARIO("Queues can grow and shrink.") {
     GIVEN("An empty queue") {
@@ -56,7 +66,7 @@ SCENARIO("Queues can grow and shrink.") {
                 }
             }
             THEN("Queue is not empty.") { CHECK(!q.isEmpty()); }
-            THEN("10 removals are needed to clear the queue.") {
+            THEN("10 removals is needed to clear the queue.") {
                 int i = 0;
                 while (!q.isEmpty()) {
                     THEN("Peek returns the first item during each deletion.") {
@@ -106,8 +116,8 @@ SCENARIO("Queues can copy.") {
         }
     }
 
-    GIVEN("A random queue") {
-        for (int trials = 10; trials >= 0; trials--) {
+    for (int trials = 10; trials >= 0; trials--) {
+        GIVEN("A random non-empty queue") {
             Queue randQ = getRandQueue(1, 20);
 
             WHEN("Its copy is constructed") {
@@ -127,7 +137,19 @@ SCENARIO("Queues can copy.") {
 
                 WHEN("The original queue is modified.") {
                     randQ.dequeue();
+                    randQ.enqueue(rand());
+                    randQ.dequeue();
                     THEN("They are now different.") { CHECK(q != randQ); }
+                }
+            }
+
+            WHEN("It's assigned to itself") {
+                const Queue copy(randQ);
+                randQ = randQ;
+
+                THEN("It's still the same.") {
+                    CHECK(randQ == copy);
+                    CHECK(randQ == randQ);
                 }
             }
         }
@@ -135,7 +157,7 @@ SCENARIO("Queues can copy.") {
 }
 
 TEST_CASE("Resize stress test" * doctest::timeout(2)) {
-    std::vector<int> v(1e6);
+    std::vector<int> v(1e5);
     Queue q;
     CHECK(q.isEmpty());
 
