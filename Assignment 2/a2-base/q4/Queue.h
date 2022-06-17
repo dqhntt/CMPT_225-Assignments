@@ -1,5 +1,6 @@
 #pragma once
 #include <cstddef>
+using std::size_t;
 
 // Desc:  Implementation of an int sequence with enqueue/dequeue in FIFO order
 class Queue {
@@ -13,8 +14,14 @@ public:
     // Desc:  Copy Constructor
     Queue(const Queue& other);
 
-    // Desc:  Assignment operator
+    // Desc:  Move Constructor
+    Queue(Queue&&) = default;
+
+    // Desc:  Copy assignment operator
     Queue& operator=(const Queue& other);
+
+    // Desc:  Move assignment operator
+    Queue& operator=(Queue&&) = default;
 
     // Desc:  Inserts element x at the back (O(1))
     void enqueue(int x);
@@ -39,7 +46,7 @@ private:
 
     // Desc:  Resize internal capacity_ to newCapacity.
     //  Pre:  newCapacity >= size_
-    // Post:  Internal array is resized.
+    // Post:  Internal array is resized and populated with old contents.
     //        Front and back indices are updated.
     void resize(size_t newCapacity);
 };

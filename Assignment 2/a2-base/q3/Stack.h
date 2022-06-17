@@ -1,6 +1,6 @@
 #pragma once
-
 #include <utility>
+
 // Desc:  The usual fare.  Descriptions, invariants, pre and post are
 //        omitted because they are duplicated elsewhere, namely Assignment 1.
 template <class T>
@@ -8,8 +8,16 @@ class Stack {
 public:
     Stack();
     ~Stack();
+
+    Stack(const Stack&) = delete;
+    Stack& operator=(const Stack&) = delete;
+    
+    Stack(Stack&&) = default;
+    Stack& operator=(Stack&&) = default;
+
     void push(T x);
     T pop();
+
     const T& peek() const;
     bool isEmpty() const;
 

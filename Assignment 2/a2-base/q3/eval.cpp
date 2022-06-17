@@ -1,22 +1,25 @@
 #include "Scanner.h"
 #include "Stack.h" // GENERIC STACK
+#include <cassert>
 #include <iostream>
 
 namespace {
-Token compute(const Token& x, const Token& y, TokenType op) {
+//  Pre:  `op` is one of these 4 math operators: { + - * / }
+// Post:  Returns token with the result of [lhs] [op] [rhs]
+Token compute(const Token& lhs, const Token& rhs, TokenType op) {
     int result = -1;
     switch (op) {
     case TokenType::plus:
-        result = x.value + y.value;
+        result = lhs.value + rhs.value;
         break;
     case TokenType::minus:
-        result = x.value - y.value;
+        result = lhs.value - rhs.value;
         break;
     case TokenType::asterisk:
-        result = x.value * y.value;
+        result = lhs.value * rhs.value;
         break;
     case TokenType::slash:
-        result = x.value / y.value;
+        result = lhs.value / rhs.value;
         break;
     default:
         throw std::invalid_argument("Invalid operator");
@@ -24,11 +27,19 @@ Token compute(const Token& x, const Token& y, TokenType op) {
     return { TokenType::integer, std::to_string(result), result };
 }
 
+// Pre:  numstack has 2 or more tokens.
+//       opstack has 1 or more tokens.
 Token popAndCompute(Stack<Token>& numstack, Stack<Token>& opstack) {
-    const Token y = numstack.pop();
-    const Token x = numstack.pop();
+    assert(!numstack.isEmpty());
+    const Token rhs = numstack.pop();
+
+    assert(!numstack.isEmpty());
+    const Token lhs = numstack.pop();
+
+    assert(!opstack.isEmpty());
     const TokenType topOp = opstack.pop().type;
-    return compute(x, y, topOp);
+
+    return compute(lhs, rhs, topOp);
 }
 } // namespace
 
@@ -89,25 +100,3 @@ int main() {
 
     std::cout << numstack.pop() << std::endl;
 }
-
-// token = scanner.getnext();
-// // pretty printer coding demo.  please remove before coding
-// while (token.tt != TokenType::eof) {
-//     switch (token.tt) {
-//     case TokenType::integer:
-//     case TokenType::leftParen:
-//     case TokenType::rightParen:
-//         std::cout << token;
-//         break;
-//     case TokenType::plus:
-//     case TokenType::minus:
-//     case TokenType::asterisk:
-//     case TokenType::slash:
-//         std::cout << ' ' << token << ' ';
-//         break;
-//     default:;
-//     }
-//     token = scanner.getnext();
-// }
-// std::cout << std::endl;
-// // end pretty printer

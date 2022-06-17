@@ -1,9 +1,10 @@
 #include "Queue.h"
 #include <stdexcept>
 
+// NOTE: All exceptions thrown are derived from std::logic_error.
+
 constexpr size_t INITIAL_SIZE = 6;
 
-// Desc:  Constructor
 Queue::Queue()
     : size_ { 0 }
     , capacity_ { INITIAL_SIZE }
@@ -12,10 +13,8 @@ Queue::Queue()
     , arr_ { new int[INITIAL_SIZE] }
 { }
 
-// Desc:  Destructor
 Queue::~Queue() { delete[] arr_; }
 
-// Desc:  Copy Constructor
 Queue::Queue(const Queue& other)
     : size_ { other.size_ }
     , capacity_ { other.capacity_ }
@@ -29,9 +28,9 @@ Queue::Queue(const Queue& other)
     }
 }
 
-// Desc:  Assignment operator
 Queue& Queue::operator=(const Queue& other) {
     if (this != &other) {
+        // Resize if needed.
         if (capacity_ < other.size_) {
             delete[] arr_;
             arr_ = new int[other.size_];
@@ -48,14 +47,10 @@ Queue& Queue::operator=(const Queue& other) {
     return *this;
 }
 
-// Desc:  Resize internal capacity_ to newCapacity.
-//  Pre:  newCapacity >= size_
-// Post:  Internal array is resized.
-//        Front and back indices are updated.
 void Queue::resize(size_t newCapacity) {
     if (newCapacity < size_) {
-        throw std::logic_error("New capacity (" + std::to_string(newCapacity)
-            + ") can't be smaller than size (" + std::to_string(size_) + ").");
+        throw std::invalid_argument("New capacity (" + std::to_string(newCapacity)
+            + ") can't be smaller than current size (" + std::to_string(size_) + ").");
     }
     int* const newArr = new int[newCapacity];
     for (size_t i = 0; i < size_; ++i) {
@@ -68,7 +63,6 @@ void Queue::resize(size_t newCapacity) {
     backIndex_ = size_;
 }
 
-// Desc:  Inserts element x at the back (O(1))
 void Queue::enqueue(int x) {
     if (size_ >= capacity_) {
         this->resize(2 * capacity_);
@@ -78,11 +72,9 @@ void Queue::enqueue(int x) {
     size_++;
 }
 
-// Desc:  Removes the frontmost element (O(1))
-//  Pre:  Queue not empty
 void Queue::dequeue() {
     if (this->isEmpty()) {
-        throw std::logic_error("Cannot dequeue an empty queue.");
+        throw std::out_of_range("Cannot dequeue an empty queue.");
     }
     size_--;
     frontIndex_ = (frontIndex_ + 1) % capacity_;
@@ -91,16 +83,13 @@ void Queue::dequeue() {
     }
 }
 
-// Desc:  Returns a copy of the frontmost element (O(1))
-//  Pre:  Queue not empty
 int Queue::peek() const {
     if (this->isEmpty()) {
-        throw std::logic_error("Cannot peek an empty queue.");
+        throw std::out_of_range("Cannot peek an empty queue.");
     }
     return arr_[frontIndex_];
 }
 
-// Desc:  Returns true if and only if queue empty (O(1))
 bool Queue::isEmpty() const {
     return size_ == 0;
 }

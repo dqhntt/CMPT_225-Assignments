@@ -16,7 +16,7 @@ public:
     // Desc:  Remove and return element at the top of the stack.
     //  Pre:  Stack is not empty.
     // Post:  Element at the top of the stack is removed and returned.
-    // Algo:  Left shift all but the front elements by 1.
+    // Algo:  Left shift all but the front element by 1.
     int pop();
 
     // Desc:  Return the topmost element of the stack.

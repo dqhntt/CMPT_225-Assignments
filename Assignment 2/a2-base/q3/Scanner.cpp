@@ -24,7 +24,6 @@ Scanner::Scanner(istream& is)
 // Desc:  Return the next token
 Token Scanner::getnext() {
     Token ret;
-    ret.text.clear();
     if (buffer_[0] == 0) {
         buffer_[0] = iStream_.get();
     }
@@ -39,7 +38,6 @@ Token Scanner::getnext() {
     // case 1: eof
     if (iStream_.eof()) {
         ret.type = TokenType::eof;
-        ret.text.clear();
         return ret;
     }
 
