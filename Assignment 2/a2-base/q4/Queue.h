@@ -12,13 +12,13 @@ public:
     ~Queue();
 
     // Desc:  Copy Constructor
-    Queue(const Queue& other);
+    Queue(const Queue&);
 
     // Desc:  Move Constructor
     Queue(Queue&&) = default;
 
     // Desc:  Copy assignment operator
-    Queue& operator=(const Queue& other);
+    Queue& operator=(const Queue&);
 
     // Desc:  Move assignment operator
     Queue& operator=(Queue&&) = default;

@@ -13,10 +13,6 @@ void Stack::push(int x) {
     }
     // Shift all elements up (right) by one.
     std::move_backward(arr_, arr_ + size_, arr_ + size_ + 1);
-    // Alternative:
-    // for (int* p = arr_ + size_; p > arr_; p--) {
-    //     *p = *(p - 1);
-    // }
     arr_[0] = x;
     size_++;
 }
@@ -28,10 +24,6 @@ int Stack::pop() {
     const int top = arr_[0];
     // Shift all but the first element down (left) by one.
     std::move(arr_ + 1, arr_ + size_, arr_);
-    // Alternative:
-    // for (int* p = arr_; p < arr_ + size_ - 1; p++) {
-    //     *p = *(p + 1);
-    // }
     size_--;
     return top;
 }
