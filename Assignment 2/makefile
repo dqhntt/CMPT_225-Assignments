@@ -1,6 +1,6 @@
-## For assignment 1 of CMPT 225.
+## For assignment 2 of CMPT 225.
 
-CXXFLAGS := -std=c++11 -Wall -Wextra -Werror -Wfatal-errors -Wno-sign-compare -Wnon-virtual-dtor -g
+CXXFLAGS := -std=c++11 -Wall -Wextra -g -Werror -Wfatal-errors -Wno-sign-compare -Wnon-virtual-dtor -g
 CXXFLAGS += -fsanitize=undefined,address # --coverage
 LDFLAGS  := -fsanitize=undefined,address # --coverage
 CC := $(CXX)
@@ -9,17 +9,16 @@ CC := $(CXX)
 .PHONY: run test clean cov dist distclean
 
 ## Different for each assignment. ##
-MAIN := a1main
-TEST := test_main
-ARCH := a1.zip
+MAIN := ??
+TEST := foo
+ARCH := a2.zip
 
 SRCS  := $(wildcard *.cpp *.c)
 TESTS := $(filter-out $(MAIN).cpp, $(SRCS))
 SRCS  := $(filter-out $(TEST).cpp, $(SRCS))
 
-# $(MAIN): $(SRCS) # No .o object files.
-$(MAIN): $(filter %.o, $(SRCS:.cpp=.o) $(SRCS:.c=.o)) # With object files.
-$(TEST): $(filter %.o, $(TESTS:.cpp=.o) $(TESTS:.c=.o))
+$(MAIN): $(SRCS)
+$(TEST): $(TESTS)
 
 run: $(MAIN)
 	./$<
@@ -38,7 +37,7 @@ cov: test
 
 dist: clean
 ## Different for each assignment. ##
-	zip $(ARCH) $(MAIN).cpp PlayList.*
+	zip $(ARCH) $(SRCS) *.h Analysis.pdf
 
 distclean:
 	rm -f $(ARCH)
