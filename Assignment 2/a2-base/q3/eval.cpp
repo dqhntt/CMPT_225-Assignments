@@ -2,6 +2,8 @@
 #include "Stack.h" // GENERIC STACK
 #include <cassert>
 #include <iostream>
+#include <sstream>
+#include <unordered_map>
 
 namespace {
 //  Pre:  `op` is one of these 4 math operators: { + - * / }
@@ -41,10 +43,13 @@ Token popAndCompute(Stack<Token>& numstack, Stack<Token>& opstack) {
 
     return compute(lhs, rhs, topOp);
 }
-} // namespace
 
-int main() {
-    Scanner scanner(std::cin);
+//  Pre:  expression is well-formed valid math infix expression.
+// Post:  Returns result of expression.
+int evaluateInfix(const std::string& expression) {
+    std::istringstream iss(expression);
+
+    Scanner scanner(iss);
     Stack<Token> numstack, opstack; // 2x Stacks of type Token
     Token currToken = scanner.getnext();
 
@@ -97,6 +102,52 @@ int main() {
         default:;
         }
     } // while
+    return numstack.pop().value;
+}
 
-    std::cout << numstack.pop() << std::endl;
+int evaluateInfixHelper(std::istream& is) {
+    std::string expression;
+    std::getline(is, expression);
+    return evaluateInfix(expression);
+}
+
+void infixTest() {
+    std::unordered_map<std::string, int> testCases;
+    testCases[" 0 "] = 0;
+    testCases["0 - 0"] = 0;
+    testCases["0 + 0"] = 0;
+    testCases["0 * 0"] = 0;
+    testCases["0 * 1"] = 0;
+    testCases["0- 1"] = -1;
+    testCases["0/1"] = 0;
+    testCases["1 +1"] = 2;
+    testCases["1 + 2 + 3 + 4"] = 10;
+    testCases["1 - 2 * 3 + 4"] = -1;
+    testCases["1 - 2 - 3 - 4 - 0  "] = -8;
+    testCases["(25 - 16) * (8 + 6)/3"] = 42;
+    testCases["1 + ( 7 * 6 ) / 3 + 6"] = 21;
+    testCases["( 48 / 8 ) + 7 * 2 - 4 * 5"] = 0;
+    testCases["0 - 2147483647"] = -2147483647;
+    testCases["2147483647 + 0 * 0"] = 2147483647;
+    testCases["2147483647 - 2147483647 - 2147483647"] = -2147483647;
+    testCases["1 * 2 * 3 * 4 * 5 / ( 1 * 2 * 3 * 4 * 5 ) - 5"] = -4;
+    testCases
+        ["((((((((1-5)+5)*10 + 5)+(2-5))/4 + 5* 10 - 50) * (1-60) + 77)* (1-2))/2 - 50 ) + 1 * 10"]
+        = 10;
+    testCases["((((((1 - 10) + 5) + (2-20) * 50)+4)/300 + (1 + 5)/2 + (1 - 3)*10)/2 + (1- 21) *2 / "
+              "2)/15 + (10-9) * 2 + 40"]
+        = 40;
+    for (const auto& test : testCases) {
+        const int currResult = evaluateInfix(test.first);
+        if (currResult != test.second) {
+            throw std::runtime_error("Assertion failed. Expecting: " + std::to_string(test.second)
+                + " | Got: " + std::to_string(currResult) + "\nEvaluating: " + test.first);
+        };
+    }
+}
+} // namespace
+
+int main() {
+    infixTest();
+    std::cout << evaluateInfixHelper(std::cin) << std::endl;
 }

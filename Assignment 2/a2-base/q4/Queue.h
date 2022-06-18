@@ -12,16 +12,10 @@ public:
     ~Queue();
 
     // Desc:  Copy Constructor
-    Queue(const Queue& other);
+    Queue(const Queue&);
 
-    // Desc:  Move Constructor
-    Queue(Queue&&) = default;
-
-    // Desc:  Copy assignment operator
-    Queue& operator=(const Queue& other);
-
-    // Desc:  Move assignment operator
-    Queue& operator=(Queue&&) = default;
+    // Desc:  Assignment operator
+    Queue& operator=(const Queue&);
 
     // Desc:  Inserts element x at the back (O(1))
     void enqueue(int x);
