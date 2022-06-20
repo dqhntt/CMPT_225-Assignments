@@ -50,7 +50,7 @@ Token Scanner::getnext() {
             ret.text += buffer_;
             buffer_[0] = iStream_.get();
         }
-        ret.value = stod(ret.text);
+        ret.value = stoi(ret.text);
         if (isspace(buffer_[0]) || (buffer_[0] == '\r') || (buffer_[0] == '\n'))
             buffer_[0] = '\0';
         return ret;

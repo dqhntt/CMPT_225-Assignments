@@ -14,8 +14,8 @@ void reverseStackTest(Stack& st) {
         revStack.push(pop);
     }
     assert(st.isEmpty());
-    for (int j = revTestVals.size() - 1; j >= 0; --j) {
-        assert(revStack.pop() == revTestVals[j]);
+    for (auto it = revTestVals.rbegin(); it != revTestVals.rend(); ++it) {
+        assert(revStack.pop() == *it);
     }
 }
 

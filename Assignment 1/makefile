@@ -1,6 +1,12 @@
 ## For assignment 1 of CMPT 225.
 
-CXXFLAGS := -std=c++11 -Wall -Wextra -Werror -Wfatal-errors -Wno-sign-compare -Wnon-virtual-dtor -g
+CXXFLAGS := -g -std=c++11 -Wall -Wextra -Wpedantic -Werror -Wfatal-errors
+# https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
+CXXFLAGS += -Wshadow -Wduplicated-branches -Wduplicated-cond -Wlogical-op -Wcast-qual
+CXXFLAGS += -Wconversion -Wno-error=conversion 
+# https://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Dialect-Options.html
+CXXFLAGS += -Wnon-virtual-dtor -Wold-style-cast -Wuseless-cast -Weffc++ -Wno-error=effc++
+# Sanitizers:
 CXXFLAGS += -fsanitize=undefined,address # --coverage
 LDFLAGS  := -fsanitize=undefined,address # --coverage
 CC := $(CXX)

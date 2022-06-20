@@ -400,7 +400,8 @@ TEST_CASE("Stress tests" * doctest::timeout(2)) {
     PlayList ord = rev;
     {
         INFO("Copy");
-        REQUIRE(ord == PlayList(rev));
+        const PlayList revCopy = rev;
+        REQUIRE(ord == revCopy);
         rev = ord;
         REQUIRE(ord == rev);
     }
