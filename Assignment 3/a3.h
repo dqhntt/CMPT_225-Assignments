@@ -82,8 +82,8 @@ int rcIndex(int r, int c, int columns, int& ops) { COUNT return r * columns + c;
 // NOTE: values are indexed r0c0,r0c1,…,r0cn-1,r1c0,…
 int* matrixSelfMultiply(int* m, int rows, int& ops) {
     // Create result array
-    COUNT int columns = rows;
-    COUNT int* result = new int[rows * columns];
+    COUNT const int columns = rows;
+    COUNT int* const result = new int[rows * columns];
     COUNT int r = 0;
 
     while (r < rows) {
