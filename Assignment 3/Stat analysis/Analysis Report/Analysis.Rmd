@@ -1,0 +1,641 @@
+---
+title: "Assignment 3 - Running Time Analysis of 7 Functions"
+author: "Hieu Duong"
+date: July 8, 2022
+output:
+  pdf_document:
+    toc: TRUE
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+# Also output all codes to a separate file.
+knitr::knit_hooks$set(purl = knitr::hook_purl)
+# Set global settings.
+knitr::opts_chunk$set(echo = TRUE, tidy = TRUE)
+# Load libraries.
+library(tidyverse)
+library(gridExtra)
+```
+
+------------------------------------------------------------------------
+
+*Cite:* [Analysis of Algorithms - Deriving Cost Function (codesdope.com)](https://www.codesdope.com/course/algorithms-analyze-your-algorithm/)
+
+<aside>
+
+Assuming worst case is when the operation count of a function is highest given inputs of the same size but of different organization.
+
+</aside>
+
+## Question 1
+
+1.  This function's worst, best, average cases are the same. Its cost function is:
+
+    $$t_{(\rm{cartesianProduct})}= 4n^2 + 5n+2$$
+
+    Analysis:
+
+    a.  The outer loop runs $n$ times, performing a number of operations in each iteration (call it $c_1$). The function performs 2 operations outside that loop, namely the initialization of $i$ and the terminating loop condition check. Thus, its cost function is: $C=c_1\cdot n+2$
+
+    b.  For each iteration of the outer loop, the inner loop runs $n$ times, performing a number of operations in each iteration (call it $c_2$). The outer loop's body performs 5 operations outside that inner loop. Thus, $c_1 = c_2\cdot n+5$
+
+    c.  Each iteration of the inner loop has 4 operations. Thus, $c_2=4$
+
+    d.  Plugging $c_2$ into $c_1$, and then $c_1$ into $C$ gives $t_{(\rm{cartesianProduct})}$ above:
+
+        $C=(4n+5)\cdot n+2 = 4n^2 + 5n+2$
+
+2.  The function's barometer operations are:
+
+    a.  The inner *while* loop comparison: `(j < n)`
+    b.  The printing of Cartesian products to standard output: `cout << "{" << arr[i] << "," << arr[j] << "}";`
+    c.  The increment of the inner loop control variable $j$: `j++;`
+    d.  The printing of white spaces to standard output: `cout << " ";`
+
+3.  The function's O notation running time is $O(n^2)$.
+
+## Question 2
+
+1.  This function's worst, best, average cases are the same. Its cost function is:
+
+    $$t_{(\rm{triangle})}=3 n^2 + 13 n + 3$$
+
+    Analysis:
+
+    a.  The function has two outer loops, one after the other, with the operation count in each of their iteration being $c_1$ and $c_2$. The first outer loop runs $n$ times, the second one runs an undetermined number of times (call it $m$). In addition to these 2 loops, the function also performs 3 other operations, namely the initialization of $i$ and the 2 terminating loop condition checks. Its cost function is therefore: $C=c_1\cdot n+c_2\cdot m+3$
+
+    b.  For each iteration of the first outer loop, its inner loop runs an undetermined number of times (call it $o$) with each of its iteration having 3 operations. Besides this inner loop, the first outer loop's body also performs 5 other operations. Thus, $c_1=3o+5$
+
+        i.  Tracing through this loop, it's apparent that:
+
+            $i=0\rightarrow o=1$
+
+            $i=1 \rightarrow o=2$
+
+            $\dots$
+
+            $i=n-1 \rightarrow o=n$
+
+            $i=n\rightarrow o=n+1$
+
+        ii. Expressing $o$ as a function of $i$ gives: $o(i)=i+1$
+
+        iii. The cost function of the first outer loop thus becomes:
+
+             $c_1(i)=3(i+1)+5=3i+8$
+
+        iv. As it's obvious $c_1$ is not a constant, the cost function of the main function needs to be modified to reflect that:
+
+            $C=\sum_{i=0}^{n-1} c_1(i) + c_2\cdot m +3$
+
+        v.  Evaluating the first term only gives:
+
+            $\sum_{i=0}^{n-1} (3i+8) = 3\cdot\sum_{i=0}^{n-1} i + \sum_{i=0}^{n-1} 8 = 3\frac{(n-1)n}2+8n = \frac{3 n^2}2 + \frac{13 n}2$
+
+        vi. Plugging this back into the main cost function gives:
+
+            $C=\frac{3 n^2}2 + \frac{13 n}2 + c_2\cdot m+3$
+
+    c.  With the first outer loop ending after $n$ iterations, the second outer loop thus begins with $i=n$. For each iteration of the first outer loop, its inner loop runs an undetermined number of times (call it $p$) with each of its iteration having 3 operations. Besides this inner loop, the second outer loop's body also performs 5 other operations. Thus, $c_2=3p+5$
+
+        i.  Tracing through this second inner loop, it's apparent that:
+
+            $i=n \rightarrow p=n$
+
+            $i=n-1 \rightarrow p=n-1$
+
+            $\dots$
+
+            $i=1 \rightarrow p=1$
+
+            $i=0\rightarrow p=0$
+
+        ii. Expressing $p$ as a function of $i$ gives: $p(i)=i$
+
+        iii. The cost function of the second outer loop thus becomes:
+
+             $c_2(i)=3\cdot p(i)+5=3i+5$
+
+        iv. As the second outer loop runs between $i=n$ and $i=1$ inclusive, its cost function is thus:
+
+            $\sum_{i=1}^n c_2(i) = \sum_{i=1}^n (3i+5) = \frac{3 n^2}2 + \frac{13 n}2$
+
+        v.  Plugging this back into the main cost function gives $t_{(\rm{triangle})}$ above:
+
+            $C=\big(\frac{3 n^2}2 + \frac{13 n}2\big)+\big(\frac{3 n^2}2 + \frac{13 n}2\big)+3 = 3 n^2 + 13 n + 3$
+
+2.  The function's barometer operations are:
+
+    a.  The inner *while* loops comparison: `(j <= i)`
+    b.  The printing of numbers and whitespaces to standard output: `cout << j << " ";`
+    c.  The increment of the inner loops control variable $j$: `j++;`
+
+3.  The function's O notation running time is $O(n^2)$.
+
+## Question 3
+
+1.  This function's worst, best, average cases are the same. Its cost function is:
+
+    $$t_{(\rm{matrixSelfMultiply})}=5 n^3 + 7 n^2 + 4 n + 4$$
+
+    Analysis:
+
+    a.  The function has 1 outermost loop that runs $n$ times from $r=0$ to $r=n-1$ inclusive, with each of its iteration costing $c_1(r)$. Apart from this loop, the function also performs 4 other operations. The total cost function is thus:
+
+        $C=4+\sum_{r=0}^{n-1} c_1(r)$
+
+    b.  Each iteration of this loop has another loop inside and 4 other operations. This inner (middle) loop also runs $n$ times from $c=0$ to $c=n-1$ inclusive, with each of its iteration costing $c_2(c)$. The cost function of this middle loop is thus:
+
+        $c_1(r)=4+\sum_{c=0}^{n-1} c_2(c)$
+
+    c.  Each iteration of this middle loop has another loop inside and 7 other operations. This innermost loop also runs $n$ times from $\rm{iNext}=0$ to $\rm{iNext}=n-1$ inclusive, with each of its iteration costing 5 operations. The cost function of this middle loop is thus:
+
+        $c_2(c)=7+\sum_{\rm{iNext}=0}^{n-1}5 = 5n+7$
+
+        i.  Plugging that back into the outermost loop's cost function gives:
+
+            $c_1(r)=4+\sum_{c=0}^{n-1} (5n+7) = 4 + n(5n+7) = 5n^2+7n+4$
+
+        ii. Plugging that back into the main cost function gives $t_{(\rm{matrixSelfMultiply})}$ above:
+
+            $C=4+\sum_{r=0}^{n-1} (5n^2+7n+4) = 4 + n(5n^2+7n+4) = 5 n^3 + 7 n^2 + 4 n + 4$
+
+2.  The function's barometer operations are:
+
+    a.  The innermost *while* loop comparison: `(iNext < rows)`
+    b.  The computation of the variable: `next += m[rcIndex(r, iNext, columns)] * m[rcIndex(iNext, c, columns)];`
+    c.  The increment of the innermost loop control variable: `iNext++;`
+
+3.  The function's O notation running time is $O(n^3)$.
+
+## Question 4
+
+1.  This function's worst case is with reverse sorted arrays. Its cost function then is:
+
+    $$
+     t_{(\rm{ssort})} = \begin{cases}
+      1&, \quad n=0 \\
+      \bigg\lfloor\frac 7 4n^2 + \frac{11}2n -6 \bigg\rfloor&, \quad n>0
+     \end{cases}
+     $$
+
+    Analysis:
+
+    a.  This function recurses $n-1$ times from $i=0$ to $i=n-2$ inclusive, with each of its execution costing $c_1(i)$. Together with the terminating condition check, the total cost function is thus:
+
+        $C=1+\sum_{i=0}^{n-2} c_1(i)$
+
+    b.  In all cases, the first *if* statement will evaluate to true in each execution but the last, and costs 1 operation each. When the *if* body is executed, there's a loop inside and 6 other operations. That loop runs from ${\rm{next}}=i+1$ to ${\rm{next}}=n-1$ inclusive, for a total of $(n-1)-(i+1)+1 = n-i-1$ times, with each of its iteration costing $c_2({\rm{next}})$. The cost of each recursive execution but the last is thus:
+
+        $c_1(i)=7+\sum_{{\rm{next}}=i+1}^{n-1} c_2({\rm{next}})$
+
+    c.  Each iteration of this loop contains 2 operations and an *if* statement. That *if* condition is always checked in each loop iteration, and each time this *if* evaluates to true, there's 1 operation inside its body. In the function's worst case, this *if* body will be executed some of the time (?).
+
+        -   I gave up and used statistical regression instead.
+
+2.  The function's barometer operations are:
+
+    a.  The *while* loop comparison: `(next < n)`
+    b.  The inner *if* statement comparison: `(arr[next] < arr[smallest])`
+    c.  The increment of the *while* loop control variable: `next++;`
+
+3.  The function's O notation running time is $O(n^2)$.
+
+## Question 5
+
+1.  This function's worst, best, average cases are the same. Its cost function is:
+
+    $$t_{(\rm{pattern})} = 3n\log_2n + 23n - 9$$
+
+    Analyzed with statistical regression.
+
+2.  The function's barometer operations are:
+
+    a.  The *while* loop comparison: `(ast < n)`
+    b.  The printing of asterisks to standard output: `cout << "* ";`
+    c.  The increment of the *while* loop control variable: `ast++;`
+
+3.  The function's O notation running time is $O(n\log n)$.
+
+## Question 6
+
+1.  This function's worst case is with the desired element at the last array index. Its cost function then is:
+
+    $$
+     t_{(\rm{lsearch})} = \begin{cases}
+      1&, \quad n=0 \\
+      3\cdot 2^n-4 &, \quad n>0
+     \end{cases}
+     $$
+
+    Analyzed with statistical regression.
+
+2.  The function's barometer operations are:
+
+    a.  The first *if* statement comparison: `(len == 0)`
+    b.  The second *if* statement comparison: `(arr[0] == target)`
+
+3.  The function's O notation running time is $O(2^n)$.
+
+## Question 7
+
+1.  This function's worst case is with odd exponents. Its cost function then is:
+
+    $$ t_{(\rm{pow})} \le 5\log_2(n+1)+4 $$
+
+    Analyzed with statistical regression and manual fine-tuning.
+
+    -   Preliminary analysis suggests $5\log_2n+3$ and $4\log_2n+7$ as the algorithm's upper and lower bounds respectively. However, both of these fail to bound all data points when they get large or small.
+
+2.  The function's barometer operations are:
+
+    a.  The *while* loop comparison: `(exp > 0)`
+    b.  The *if* statement comparison: `(exp & 1)`
+    c.  The right shift bitwise computation: `exp >>= 1;`
+    d.  The squaring of the variable: `base = base * base;`
+
+3.  The function's O notation running time is $O(\log n)$.
+
+------------------------------------------------------------------------
+
+## Appendix A - Statistical Analyses
+
+Minimum sample size = 30.
+
+### Question 4 - `ssort`
+
+Make a scatterplot with a smooth line.
+
+```{r, echo=FALSE, message=FALSE}
+dat <- read.csv(file = "../ssort.csv", col.names = c("size", "ops"))
+ggplot(dat, aes(x = size, y = ops)) +
+  geom_point() +
+  geom_smooth()
+summary(dat)
+```
+
+As it's obviously not linear, first try with a 10th degree polynomial.
+
+```{r, echo=FALSE}
+fit <- lm(ops ~ poly(size, 10), data = dat)
+summary(fit)
+```
+
+Clear that a quadratic is all we need. $$\mu_y = \beta_0 + \beta_1 x + \beta_2 x^2 + \epsilon$$
+
+```{r, echo=FALSE}
+fit <- lm(ops ~ size + I(size ^ 2), data = dat)
+summary(fit)
+confint(fit)
+par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
+plot(fit)  # Plot the model information
+par(mfrow = c(1, 1))  # Return plotting panel to 1 section
+# Cite: https://drsimonj.svbtle.com/visualising-residuals
+```
+
+Could use some rounding.
+
+```{r, echo=FALSE}
+fit <- lm(ops ~ floor(-6 + 5.5*size + 1.75*(size ^ 2)), data = dat)
+summary(fit)
+confint(fit)
+par(mfrow = c(2, 2))
+plot(fit)
+par(mfrow = c(1, 1))
+```
+
+A perfect fit! With: $\hat\beta_0 = -6$, $\hat\beta_1 = 5.5$, $\hat\beta_2 = 1.75$
+
+$$T(n) = \lfloor 1.75\ n^2 + 5.5\ n -6 \rfloor$$
+
+```{r, include=FALSE}
+rm(dat, fit)
+```
+
+### Question 5 - `pattern`
+
+Make a scatterplot with a smooth line.
+
+```{r, echo=FALSE, message=FALSE}
+dat <- read.csv(file = "../pattern.csv", col.names = c("size", "ops"))
+ggplot(dat, aes(x = size, y = ops)) +
+  geom_point() +
+  geom_smooth()
+summary(dat)
+```
+
+Oops! Operation count can't be negative (possibly because of integer overflow), thus need to remove those outliers. (This test program was compiled with `-fwrapv` in `g++`.)
+
+```{r, echo=FALSE, message=FALSE}
+tail(dat)
+
+dat <- filter(dat, (ops >= 0) & (size < 1e8))
+ggplot(dat, aes(x = size, y = ops)) +
+  geom_point() +
+  geom_smooth()
+```
+
+Looks linear. Let's try that.
+
+```{r, echo=FALSE}
+fit <- lm(ops ~ size, data = dat)
+summary(fit)
+par(mfrow = c(2, 2))
+plot(fit)
+par(mfrow = c(1, 1))
+```
+
+Residuals don't meet LR assumptions, suggesting a different model, possibly linearithmic. Trying that: $$\mu_y=\beta_0 + \beta_1x + \beta_2\log_2x + \beta_3x\log_2x + \epsilon$$
+
+```{r, echo=FALSE}
+fit <- lm(ops ~ size * I(log2(size)), data = dat)
+summary(fit)
+```
+
+$\log_2x$ alone is insignificant, dropping it. $$\mu_y=\beta_0 + \beta_1x + \beta_2x\log_2x + \epsilon$$
+
+```{r, echo=FALSE}
+fit <- lm(ops ~ size + I(size * log2(size)), data = dat)
+fit
+confint(fit)
+par(mfrow = c(2, 2))
+plot(fit)
+par(mfrow = c(1, 1))
+```
+
+Perfect fit with: $\hat\beta_0 = -9$, $\hat\beta_1 = 23$, $\hat\beta_2 = 3$
+
+$$T(n) = 3n\log_2n + 23n - 9$$
+
+```{r, include=FALSE}
+rm(dat, fit)
+```
+
+### Question 6 - `lsearch`
+
+Make a scatterplot with a smooth line.
+
+```{r, echo=FALSE, message=FALSE}
+dat <- read.csv(file = "../lsearch.csv", col.names = c("size", "ops"))
+ggplot(dat, aes(x = size, y = ops)) +
+  geom_point() +
+  geom_smooth()
+summary(dat)
+```
+
+Clearly exponential, checking for interaction with polynomials. $$\mu_y = \beta_0 +\beta_1x +\beta_2x^2 +\beta_32^x \\
+ +\beta_4\ x\cdot 2^x +\beta_5\ x^2\cdot 2^x + \epsilon$$
+
+```{r, echo=FALSE}
+fit <- lm(ops ~ poly(size, 2) * I(2 ^ size), data = dat)
+summary(fit)
+```
+
+Last 2 are insignificant, coefficients of polynomials are near zero, dropping them all. $$\mu_y = \beta_0+\beta_12^x + \epsilon$$
+
+```{r, echo=FALSE}
+fit <- lm(ops ~ I(2 ^ size), data = dat)
+fit
+par(mfrow = c(2, 2))
+plot(fit)
+par(mfrow = c(1, 1))
+```
+
+Perfect fit with: $\hat\beta_0 = -4$, $\hat\beta_1 = 3$
+
+$$T(n) = 3\cdot 2^n - 4$$
+
+```{r, include=FALSE}
+rm(dat, fit)
+```
+
+### Question 7 - `pow`
+
+Make a scatterplot with a smooth line. Odd exponents cost more operations than even ones, so make them stand out.
+
+```{r, echo=FALSE, message=FALSE}
+dat <- read.csv(file = "../pow.csv", col.names = c("size", "ops"))
+dat <-
+  mutate(
+    dat,
+    oddexp = size %% 2 != 0,
+    logSize = log2(size),
+    logOps = log2(ops)
+  )
+summary(dat)
+ggplot(filter(dat, size < 500), aes(x = size, y = ops, color = oddexp)) +
+  geom_point() +
+  geom_smooth()
+```
+
+The general trend is logarithmic, but has a periodic pattern to it. Trying a logarithmic transformation on the predictor variable.
+
+```{r, echo=FALSE, message=FALSE}
+ggplot(dat, aes(x = logSize, y = ops, color = oddexp)) +
+  geom_point() +
+  geom_smooth()
+```
+
+Odd exponents clearly cost more, but the data is heteroscedastic! As we are more interested in the upper bound, trying with a small dataset of only odd exponents where their binary representations are all 1s.
+
+```{r, echo=FALSE, message=FALSE}
+sodat <- read.csv(file = "../odd_pow.csv", col.names = c("size", "ops"))
+sodat <-
+  mutate(
+    sodat,
+    logSize = log2(size),
+    logOps = log2(ops)
+  )
+head(sodat)
+summary(sodat)
+soplot <- ggplot(sodat, aes(x = logSize, y = ops)) +
+  ggtitle("Small dataset (worst odds)") +
+  geom_point() +
+  geom_smooth()
+oplot <- ggplot(filter(dat, oddexp == F), aes(x = logSize, y = ops)) +
+  ggtitle("Full dataset (regular odds)") +
+  geom_point() +
+  geom_smooth()
+grid.arrange(soplot, oplot, ncol = 2)
+rm(soplot, oplot)
+```
+
+Trying to fit a logarithm to that small dataset. $$\mu_y = \beta_0 + \beta_1\log_2x + \epsilon$$
+
+```{r, echo=FALSE}
+sofit <- lm(ops ~ logSize, data = sodat)
+summary(sofit)
+confint(sofit)
+```
+
+Model suggests the average operation count of the worst odd exponents can use $5\log_2n+3$. While we're at it, also try with even exponents that have binary representations starting with 1 and rest with 0s. Finding these two can help inform where the bounds are.
+
+```{r, echo=FALSE}
+sedat <- read.csv(file = "../even_pow.csv", col.names = c("size", "ops"))
+sedat <-
+  mutate(
+    sedat,
+    logSize = log2(size),
+    logOps = log2(ops)
+  )
+head(sedat)
+sefit <- lm(ops ~ logSize, data = sedat)
+sefit
+```
+
+Model suggests $4\log_2n+7$ for the best even exponents. Plotting these two against the original dataset.
+
+```{r, echo=FALSE, message=FALSE}
+newdat <- filter(dat, size < 1e3)
+newdat <- 
+  mutate(
+    newdat,
+    lowfit = predict(sefit, newdata = newdat),
+    highfit = predict(sofit, newdata = newdat)
+  )
+ggplot(newdat, aes(x = size, y = ops, color = oddexp)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              formula = y ~ log2(x)) +
+  geom_line(data = newdat, aes(x = size, y = lowfit)) +
+  geom_line(data = newdat, aes(x = size, y = highfit))
+```
+
+As they apparently aren't the best nor worst cases, fine-tuning is needed. Trying to keep the coefficients on $\log_2x$ ($\hat\beta_1$) the same, shifting vertically first, and then horizontally as needed.
+
+```{r, echo=FALSE, message=FALSE, fig.height = 4.65, fig.width = 7}
+rm(sefit, sofit)
+mfit.lo <- function(x) { 4*log2(x) + 5 }
+mfit.hi <- function(x) { 5*log2(x) + 4 }
+newdat$lowfit = mfit.lo(newdat$size)
+newdat$highfit = mfit.hi(newdat$size)
+
+ggplot(newdat, aes(x = size, y = ops, color = oddexp)) +
+  ggtitle("Low: 4*log2(x)+5, High: 5*log2(x)+4") +
+  geom_point() +
+  geom_line(data = newdat, aes(x = size, y = lowfit)) +
+  geom_line(data = newdat, aes(x = size, y = highfit))
+```
+
+```{r, echo=FALSE, message=FALSE, fig.height = 4.65, fig.width = 7}
+snewdat <- filter(newdat, size < 30)
+ggplot(snewdat, aes(x = size, y = ops, color = oddexp)) +
+  ggtitle("Low: 4*log2(x)+5, High: 5*log2(x)+4") +
+  geom_point() +
+  geom_line(data = snewdat, aes(x = size, y = lowfit)) +
+  geom_line(data = snewdat, aes(x = size, y = highfit))
+
+rm(snewdat)
+```
+
+Not good. Shifting the upper bound to the left by 1.
+
+```{r, echo=FALSE, message=FALSE, fig.height = 4.65, fig.width = 7}
+mfit.hi <- function(x) { 5*log2(x + 1) + 4 }
+newdat$highfit = mfit.hi(newdat$size)
+
+snewdat <- filter(newdat, size < 30)
+ggplot(snewdat, aes(x = size, y = ops, color = oddexp)) +
+  ggtitle("Low: 4*log2(x) + 5, High: 5*log2(x+1) + 4") +
+  geom_point() +
+  geom_line(data = snewdat, aes(x = size, y = lowfit)) +
+  geom_line(data = snewdat, aes(x = size, y = highfit))
+
+rm(snewdat)
+```
+
+```{r, echo=FALSE, message=FALSE, fig.height = 4.65, fig.width = 7}
+ggplot(newdat, aes(x = size, y = ops, color = oddexp)) +
+  ggtitle("Low: 4*log2(x) + 5, High: 5*log2(x+1) + 4") +
+  geom_point() +
+  geom_line(data = newdat, aes(x = size, y = lowfit)) +
+  geom_line(data = newdat, aes(x = size, y = highfit))
+```
+
+Looking great! Now trying with larger datasets.
+
+```{r, echo=FALSE, message=FALSE, fig.height = 4.8, fig.width = 7}
+newdat <- dat
+newdat <- 
+  mutate(
+    newdat,
+    lowfit = mfit.lo(size),
+    highfit = mfit.hi(size)
+  )
+ggplot(newdat, aes(x = size, y = ops, color = oddexp)) +
+  ggtitle("Low: 4*log2(x) + 5, High: 5*log2(x+1) + 4") +
+  geom_point() +
+  geom_line(data = newdat, aes(x = size, y = lowfit)) +
+  geom_line(data = newdat, aes(x = size, y = highfit))
+```
+
+```{r, echo=FALSE, message=FALSE, fig.height = 4.8, fig.width = 7}
+xdat <- read.csv(file = "../xpow.csv", col.names = c("size", "ops"))
+xdat <-
+  mutate(
+    xdat,
+    oddexp = size %% 2 != 0,
+    logSize = log2(size),
+    logOps = log2(ops),
+    lowfit = mfit.lo(size),
+    highfit = mfit.hi(size)
+  )
+ggplot(xdat, aes(x = size, y = ops, color = oddexp)) +
+  ggtitle("Low: 4*log2(x) + 5, High: 5*log2(x+1) + 4") +
+  geom_point() +
+  geom_line(data = xdat, aes(x = size, y = lowfit)) +
+  geom_line(data = xdat, aes(x = size, y = highfit))
+```
+
+Computing for datapoints outside these bounds in the above two:
+
+```{r, echo=FALSE}
+filter(newdat, (ops > highfit) | (ops < lowfit))
+filter(xdat, (ops > highfit) | (ops < lowfit))
+```
+
+Good enough for me! $$4\log_2(n)+5 \le T(n) \le 5\log_2(x+1)+4$$
+
+```{r, include=FALSE}
+rm(mfit, newdat)
+```
+
+------------------------------------------------------------------------
+
+## Appendix B - Samples Used
+
+Previews of the larger datasets.
+
+### Question 4 - `ssort`
+
+```{r, echo=FALSE}
+read.csv(file = "../ssort.csv")[1:30,]
+```
+
+### Question 5 - `pattern`
+
+```{r, echo=FALSE}
+head(read.csv(file = "../pattern.csv"), 30)
+```
+
+### Question 6 - `lsearch`
+
+```{r, echo=FALSE}
+head(unique(read.csv(file = "../lsearch.csv")), 30)
+```
+
+### Question 7 - `pow`
+
+In order:
+  1. Original dataset.
+  2. Worst odd exponents.
+  3. Best even exponents.
+  4. Extreme dataset.
+
+```{r, echo=FALSE}
+head(dat, 30)
+head(sodat, 20)
+head(sedat, 20)
+tail(xdat, 15)
+```
