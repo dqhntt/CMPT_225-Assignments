@@ -105,10 +105,10 @@ dat <-
     logSize = log2(size),
     logOps = log2(ops)
   )
-summary(dat)
 ggplot(filter(dat, size < 500), aes(x = size, y = ops, color = oddexp)) +
   geom_point() +
   geom_smooth()
+summary(dat)
 
 ## ---- echo=FALSE, message=FALSE-----------------------------------------------
 ggplot(dat, aes(x = logSize, y = ops, color = oddexp)) +

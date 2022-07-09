@@ -80,7 +80,7 @@ int rcIndex(int r, int c, int columns, int& ops) { COUNT return r * columns + c;
 // PARAM: rows represents the number of both rows and columns
 // POST: Returns a pointer to an array (matrix) of the same size as m
 // NOTE: values are indexed r0c0,r0c1,…,r0cn-1,r1c0,…
-int* matrixSelfMultiply(int* m, int rows, int& ops) {
+int* matrixSelfMultiply(int m[], int rows, int& ops) {
     // Create result array
     COUNT const int columns = rows;
     COUNT int* const result = new int[rows * columns];

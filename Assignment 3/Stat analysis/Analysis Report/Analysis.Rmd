@@ -48,10 +48,10 @@ Assuming worst case is when the operation count of a function is highest given i
 
 2.  The function's barometer operations are:
 
-    a.  The inner *while* loop comparison: `(j < n)`
+    a.  The inner *while* loop comparison: `(j < n)`
     b.  The printing of Cartesian products to standard output: `cout << "{" << arr[i] << "," << arr[j] << "}";`
     c.  The increment of the inner loop control variable $j$: `j++;`
-    d.  The printing of white spaces to standard output: `cout << " ";`
+    d.  The printing of whitespaces to standard output: `cout << " ";`
 
 3.  The function's O notation running time is $O(n^2)$.
 
@@ -97,7 +97,7 @@ Assuming worst case is when the operation count of a function is highest given i
 
             $C=\frac{3 n^2}2 + \frac{13 n}2 + c_2\cdot m+3$
 
-    c.  With the first outer loop ending after $n$ iterations, the second outer loop thus begins with $i=n$. For each iteration of the first outer loop, its inner loop runs an undetermined number of times (call it $p$) with each of its iteration having 3 operations. Besides this inner loop, the second outer loop's body also performs 5 other operations. Thus, $c_2=3p+5$
+    c.  With the first outer loop ending after $n$ iterations, the second outer loop thus begins with $i=n$ and runs for $n$ times. For each iteration of the second outer loop, its inner loop runs an undetermined number of times (call it $p$) with each of its iteration having 3 operations. Besides this inner loop, the second outer loop's body also performs 5 other operations. Thus, $c_2=3p+5$
 
         i.  Tracing through this second inner loop, it's apparent that:
 
@@ -127,7 +127,7 @@ Assuming worst case is when the operation count of a function is highest given i
 
 2.  The function's barometer operations are:
 
-    a.  The inner *while* loops comparison: `(j <= i)`
+    a.  The inner *while* loops comparison: `(j <= i)`
     b.  The printing of numbers and whitespaces to standard output: `cout << j << " ";`
     c.  The increment of the inner loops control variable $j$: `j++;`
 
@@ -163,8 +163,8 @@ Assuming worst case is when the operation count of a function is highest given i
 
 2.  The function's barometer operations are:
 
-    a.  The innermost *while* loop comparison: `(iNext < rows)`
-    b.  The computation of the variable: `next += m[rcIndex(r, iNext, columns)] * m[rcIndex(iNext, c, columns)];`
+    a.  The innermost *while* loop comparison: `(iNext < rows)`
+    b.  The 3-op computation of the variable: `next += m[rcIndex(r, iNext, columns)] * m[rcIndex(iNext, c, columns)];`
     c.  The increment of the innermost loop control variable: `iNext++;`
 
 3.  The function's O notation running time is $O(n^3)$.
@@ -186,7 +186,7 @@ Assuming worst case is when the operation count of a function is highest given i
 
         $C=1+\sum_{i=0}^{n-2} c_1(i)$
 
-    b.  In all cases, the first *if* statement will evaluate to true in each execution but the last, and costs 1 operation each. When the *if* body is executed, there's a loop inside and 6 other operations. That loop runs from ${\rm{next}}=i+1$ to ${\rm{next}}=n-1$ inclusive, for a total of $(n-1)-(i+1)+1 = n-i-1$ times, with each of its iteration costing $c_2({\rm{next}})$. The cost of each recursive execution but the last is thus:
+    b.  In all cases, the first *if* statement will evaluate to true in each recursion but the last, and costs 1 operation each. When the *if* body is executed, there's a loop inside and 6 other operations. That loop runs from ${\rm{next}}=i+1$ to ${\rm{next}}=n-1$ inclusive, for a total of $(n-1)-(i+1)+1 = n-i-1$ times, with each of its iteration costing $c_2({\rm{next}})$. The cost of each recursive execution but the last is thus:
 
         $c_1(i)=7+\sum_{{\rm{next}}=i+1}^{n-1} c_2({\rm{next}})$
 
@@ -196,7 +196,7 @@ Assuming worst case is when the operation count of a function is highest given i
 
 2.  The function's barometer operations are:
 
-    a.  The *while* loop comparison: `(next < n)`
+    a.  The *while* loop comparison: `(next < n)`
     b.  The inner *if* statement comparison: `(arr[next] < arr[smallest])`
     c.  The increment of the *while* loop control variable: `next++;`
 
@@ -212,7 +212,7 @@ Assuming worst case is when the operation count of a function is highest given i
 
 2.  The function's barometer operations are:
 
-    a.  The *while* loop comparison: `(ast < n)`
+    a.  The *while* loop comparison: `(ast < n)`
     b.  The printing of asterisks to standard output: `cout << "* ";`
     c.  The increment of the *while* loop control variable: `ast++;`
 
@@ -240,17 +240,17 @@ Assuming worst case is when the operation count of a function is highest given i
 
 ## Question 7
 
-1.  This function's worst case is with odd exponents. Its cost function then is:
+1.  This function's worst case is with odd exponents that have their binary representations as all 1s. Its cost function then is:
 
     $$ t_{(\rm{pow})} \le 5\log_2(n+1)+4 $$
 
     Analyzed with statistical regression and manual fine-tuning.
 
-    -   Preliminary analysis suggests $5\log_2n+3$ and $4\log_2n+7$ as the algorithm's upper and lower bounds respectively. However, both of these fail to bound all data points when they get large or small.
+    -   Preliminary analysis suggests $5\log_2n+3$ and $4\log_2n+7$ as the algorithm's upper and lower bounds respectively. However, both of these fail to bound all data as they get large or small.
 
 2.  The function's barometer operations are:
 
-    a.  The *while* loop comparison: `(exp > 0)`
+    a.  The *while* loop comparison: `(exp > 0)`
     b.  The *if* statement comparison: `(exp & 1)`
     c.  The right shift bitwise computation: `exp >>= 1;`
     d.  The squaring of the variable: `base = base * base;`
@@ -423,10 +423,10 @@ dat <-
     logSize = log2(size),
     logOps = log2(ops)
   )
-summary(dat)
 ggplot(filter(dat, size < 500), aes(x = size, y = ops, color = oddexp)) +
   geom_point() +
   geom_smooth()
+summary(dat)
 ```
 
 The general trend is logarithmic, but has a periodic pattern to it. Trying a logarithmic transformation on the predictor variable.
