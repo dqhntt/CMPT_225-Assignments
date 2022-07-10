@@ -126,7 +126,7 @@ void matrixSelfMultiplyTest(int m[], int n) {
     cout << "}\n";
     int cost = 0;
 
-    matrixSelfMultiply(m, n, cost);
+    delete[] matrixSelfMultiply(m, n, cost);
 
     cout << "matrix = { ";
     for (int i = 0; i < n; i++) {

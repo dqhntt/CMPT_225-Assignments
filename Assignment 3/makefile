@@ -1,5 +1,11 @@
-CXXFLAGS := -std=c++17 -Wall -Wextra -Wpedantic -Werror -Wfatal-errors
-CXXFLAGS += -O1 -fwrapv # --coverage
+CXXFLAGS := -g -std=c++11 -Wall -Wextra -Wpedantic -Werror -Wfatal-errors
+CXXFLAGS += -Wshadow -Wduplicated-branches -Wduplicated-cond -Wlogical-op -Wcast-qual
+CXXFLAGS += -Wnon-virtual-dtor -Wold-style-cast -Wuseless-cast -Weffc++ -Wno-error=effc++
+# Prevent UB overflow.
+CXXFLAGS += -O1 -fwrapv
+# Sanitizers:
+CXXFLAGS += -fsanitize=undefined,address # --coverage
+LDFLAGS  := -fsanitize=undefined,address # --coverage
 CC = $(CXX)
 
 .DELETE_ON_ERROR:
