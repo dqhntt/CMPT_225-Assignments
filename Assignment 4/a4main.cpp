@@ -5,9 +5,7 @@
 #include <vector>
 #include <iostream>
 #include "AVLTree.h"
-using std::cout;
-using std::endl;
-using std::vector;
+using namespace std;
 
 void a4marking();
 template <class K, class V>
@@ -17,7 +15,7 @@ int main()
 {
     a4marking();
 
-    cout << endl;
+    cout << '\n';
 }
 
 void a4marking()
@@ -42,7 +40,7 @@ template <class K, class V>
 bool checkAVLTree(const AVLTree<K, V>& tree)
 {
     AVLTreeNode<int, int>* nd = (AVLTreeNode<int, int>*)tree.getRoot();
-    cout << "height = " << nd->height << endl;
+    cout << "height = " << nd->height << '\n';
 
     return false;
 }
