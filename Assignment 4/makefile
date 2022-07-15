@@ -1,5 +1,5 @@
-CXXFLAGS := -g -std=c++11 -Wall -Wextra -Wpedantic #-Werror -Wfatal-errors
-CXXFLAGS += -Wshadow -Wduplicated-branches -Wduplicated-cond -Wlogical-op -Wcast-qual
+CXXFLAGS := -g -std=c++11 -Wall -Wextra -Wpedantic -Wfatal-errors #-Werror
+CXXFLAGS += -Wduplicated-branches -Wduplicated-cond -Wlogical-op -Wcast-qual
 CXXFLAGS += -Wconversion -Wno-error=conversion
 CXXFLAGS += -Wnon-virtual-dtor -Wold-style-cast -Wuseless-cast -Weffc++ -Wno-error=effc++
 # Sanitizers:
@@ -8,8 +8,9 @@ LDFLAGS  := -fsanitize=undefined,address # --coverage
 CC = $(CXX)
 
 .DELETE_ON_ERROR:
-.PHONY: run test clean
+.PHONY: run test cov clean
 
+a4main: a4main.o
 a4main.o: a4main.cpp AVLTree.h
 
 run: a4main

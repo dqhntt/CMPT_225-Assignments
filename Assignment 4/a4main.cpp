@@ -27,7 +27,6 @@ void a4marking()
     bool success = aspen.insert(1, 2);
     success = aspen.remove(1);
     int result = aspen.search(1);
-    vector<int> v1 = aspen.search(0, 10);
     vector<int> v2 = aspen.values();
     vector<int> k1 = aspen.keys();
     AVLTree<int, int> larch(aspen);
