@@ -1,7 +1,7 @@
 CXXFLAGS := -g -std=c++11 -Wall -Wextra -Wpedantic -Wfatal-errors #-Werror
 CXXFLAGS += -Wduplicated-branches -Wduplicated-cond -Wlogical-op -Wcast-qual
 CXXFLAGS += -Wconversion -Wno-error=conversion
-CXXFLAGS += -Wnon-virtual-dtor -Wold-style-cast -Wuseless-cast -Weffc++ -Wno-error=effc++
+CXXFLAGS += -Wnon-virtual-dtor -Wold-style-cast -Wuseless-cast
 # Sanitizers:
 CXXFLAGS += -fsanitize=undefined,address # --coverage
 LDFLAGS  := -fsanitize=undefined,address # --coverage

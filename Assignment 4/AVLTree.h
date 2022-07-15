@@ -14,10 +14,10 @@ public:
     Value value;
     // height - node's height
     unsigned height;
-    // parent - pointer to parent
     // left - pointer to left child
     // right - pointer to right child
-    AVLTreeNode *parent, *left, *right;
+    // parent - pointer to parent
+    AVLTreeNode *left, *right, *parent;
 
     // Constructors ...
     AVLTreeNode();
@@ -73,6 +73,16 @@ private:
     AVLTreeNode<Key, Value>* root_;
 };
 
+// Helper functions for AVLTree.
+namespace impl {
+
+template <class Node>
+int height(const Node* node) {
+    return (node == nullptr) ? -1 : node->height;
+}
+
+} // namespace impl
+
 // AVL Tree Methods go here
 
 template <class Key, class Value>
@@ -101,9 +111,41 @@ AVLTree<Key, Value>::~AVLTree() {
 
 template <class Key, class Value>
 bool AVLTree<Key, Value>::insert(Key key, Value value) {
+    auto* next = root_;
+    auto* current = next;
+    // Find insertion point.
+    while (next != nullptr) {
+        current = next;
+        if (key < next->key) {
+            next = next->left;
+        } else if (key > next->key) {
+            next = next->right;
+        } else {
+            return false; // Indicating duplicate keys.
+        }
+    }
+    // Insert.
+    auto* const newNode = new AVLTreeNode<Key, Value>(std::move(key), std::move(value), current);
+    if (current == nullptr) { // current == root_ == nullptr.
+        current = root_ = newNode;
+    } else if (newNode->key < current->key) {
+        current->left = newNode;
+    } else {
+        current->right = newNode;
+    }
+    size_++;
+    // Update heights and rebalance.
+    // Traversing back up.
+    current->height = 1 + std::max(impl::height(current->left), impl::height(current->right));
+    next = current->parent;
+    while (next != nullptr) {
+        current = next;
+        next = next->parent;
+        current->height = 1 + std::max(impl::height(current->left), impl::height(current->right));
 
-	// TODO
-    return {};
+        // TODO: Balance as needed.
+    }
+    return true;
 }
 
 template <class Key, class Value>
