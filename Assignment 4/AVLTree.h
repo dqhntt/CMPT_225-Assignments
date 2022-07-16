@@ -1,5 +1,8 @@
 // AVLTree.h
 #pragma once
+// #define NDEBUG
+#include <cassert>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -60,15 +63,15 @@ public:
     bool insert(Key key, Value value);
     bool remove(const Key& key);
     void swap(AVLTree& other);
-    Value search(const Key& key) const;
+    const Value& search(const Key& key) const;
     std::vector<Value> values() const;
     std::vector<Key> keys() const;
-    unsigned size() const;
+    std::size_t size() const;
     AVLTreeNode<Key, Value>* getRoot() const { return root_; }; // DO NOT REMOVE
 
 private:
     // Tree attributes go here
-    unsigned size_;
+    std::size_t size_;
     // Your tree MUST have a root node named root
     AVLTreeNode<Key, Value>* root_;
 };
@@ -79,6 +82,24 @@ namespace impl {
 template <class Node>
 int height(const Node* node) {
     return (node == nullptr) ? -1 : node->height;
+}
+
+template <class Node>
+void destroy(Node* node) {
+    if (node != nullptr) {
+        destroy(node->left);
+        destroy(node->right);
+        delete node;
+    }
+}
+
+template <class Node, class UnaryFunction = void(Node*)>
+void traverseInOrder(Node* node, UnaryFunction func) {
+    if (node != nullptr) {
+        traverseInOrder(node->left, func);
+        func(node);
+        traverseInOrder(node->right, func);
+    }
 }
 
 } // namespace impl
@@ -105,8 +126,7 @@ AVLTree<Key, Value>& AVLTree<Key, Value>::operator=(AVLTree other) {
 
 template <class Key, class Value>
 AVLTree<Key, Value>::~AVLTree() {
-
-	// TODO
+    impl::destroy(root_);
 }
 
 template <class Key, class Value>
@@ -162,29 +182,39 @@ void AVLTree<Key, Value>::swap(AVLTree& other) {
 }
 
 template <class Key, class Value>
-Value AVLTree<Key, Value>::search(const Key& key) const {
-
-	// TODO
-    return {};
+const Value& AVLTree<Key, Value>::search(const Key& key) const {
+    const auto* current = root_;
+    while (current != nullptr) {
+        if (key < current->key) {
+            current = current->left;
+        } else if (key > current->key) {
+            current = current->right;
+        } else {
+            return current->value;
+        }
+    }
+    throw std::runtime_error(std::string("Key not found: ") + __PRETTY_FUNCTION__);
 }
 
 template <class Key, class Value>
 std::vector<Value> AVLTree<Key, Value>::values() const {
-
-    // TODO
-    return {};
+    std::vector<Value> values;
+    values.reserve(size_);
+    impl::traverseInOrder(
+        root_, [&values](const decltype(root_) node) { values.push_back(node->value); });
+    return values;
 }
 
 template <class Key, class Value>
 std::vector<Key> AVLTree<Key, Value>::keys() const {
-
-	// TODO
-    return {};
+    std::vector<Key> keys;
+    keys.reserve(size_);
+    impl::traverseInOrder(
+        root_, [&keys](const decltype(root_) node) { keys.push_back(node->key); });
+    return keys;
 }
 
 template <class Key, class Value>
-unsigned AVLTree<Key, Value>::size() const {
-
-	// TODO
-    return {};
+std::size_t AVLTree<Key, Value>::size() const {
+    return size_;
 }

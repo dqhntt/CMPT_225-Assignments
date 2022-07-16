@@ -22,12 +22,11 @@ int height(const Node* node) {
 
 template <class Node>
 void print(const Node* node) {
-    if (node == nullptr) {
-        return;
+    if (node != nullptr) {
+        print(node->left);
+        cout << "(" << node->key << ", " << node->value << " | " << node->height << ")\n";
+        print(node->right);
     }
-    print(node->left);
-    cout << "(" << node->key << ", " << node->value << " | " << node->height << ")\n";
-    print(node->right);
 }
 
 // Cite: https://stackoverflow.com/questions/36802354/print-binary-tree-in-a-pretty-way-using-c
@@ -62,16 +61,19 @@ void print(const Tree& tree) {
 
 int main() {
     AVLTree<int, char> tree;
-    tree.insert(1, 'a');
-    print(tree);
-    tree.insert(-5, 'n');
-    print(tree);
-    tree.insert(1, 'b');
-    print(tree);
-    tree.insert(2, 'b');
-    print(tree);
-    tree.insert(0, 'o');
-    print(tree);
-    tree.insert(3, 'c');
-    print(tree);
+    char c = 'a';
+    for (int i = 0; i < 10; i++) {
+        tree.insert(i, c++);
+        print(tree);
+    }
+    cout << "Size: " << tree.size() << '\n';
+    cout << "Keys:\n";
+    for (auto key : tree.keys()) {
+        cout << key << '\n';
+    }
+    cout << "Values:\n";
+    for (auto value : tree.values()) {
+        cout << value << '\n';
+    }
+    cout << "Search for 0: " << tree.search(0) << '\n';
 }
