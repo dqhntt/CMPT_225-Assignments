@@ -3,8 +3,8 @@ CXXFLAGS += -Wduplicated-branches -Wduplicated-cond -Wlogical-op -Wcast-qual
 CXXFLAGS += -Wconversion -Wno-error=conversion
 CXXFLAGS += -Wnon-virtual-dtor -Wold-style-cast -Wuseless-cast
 # Sanitizers:
-CXXFLAGS += -fsanitize=undefined,address # --coverage
-LDFLAGS  := -fsanitize=undefined,address # --coverage
+CXXFLAGS += -fsanitize=undefined,address --coverage
+LDFLAGS  := -fsanitize=undefined,address --coverage
 CC = $(CXX)
 
 .DELETE_ON_ERROR:

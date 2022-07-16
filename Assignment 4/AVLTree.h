@@ -84,6 +84,90 @@ int height(const Node* node) {
     return (node == nullptr) ? -1 : node->height;
 }
 
+// Update node's height based on its children's heights.
+// Pre: node != nullptr
+template <class Node>
+void updateHeight(Node* node) {
+    assert(node != nullptr);
+    node->height = 1 + std::max(height(node->left), height(node->right));
+}
+
+// Pre: node != nullptr && node->right != nullptr
+template <class Node>
+void leftRotate(Node* const node) {
+    assert(node != nullptr && node->right != nullptr);
+    auto* const parent = node->parent;
+    auto* const rightChild = node->right;
+    node->right = rightChild->left;
+    if (node->right != nullptr) {
+        node->right->parent = node;
+    }
+    node->parent = rightChild;
+    rightChild->left = node;
+    rightChild->parent = parent;
+    updateHeight(node);
+    updateHeight(rightChild);
+    if (parent != nullptr) {
+        if (parent->key < rightChild->key) {
+            parent->right = rightChild;
+        } else {
+            parent->left = rightChild;
+        }
+        updateHeight(parent);
+    }
+}
+
+// Pre: node != nullptr && node->left != nullptr
+template <class Node>
+void rightRotate(Node* const node) {
+    assert(node != nullptr && node->left != nullptr);
+    auto* const parent = node->parent;
+    auto* const leftChild = node->left;
+    node->left = leftChild->right;
+    if (node->left != nullptr) {
+        node->left->parent = node;
+    }
+    node->parent = leftChild;
+    leftChild->right = node;
+    leftChild->parent = parent;
+    updateHeight(node);
+    updateHeight(leftChild);
+    if (parent != nullptr) {
+        if (parent->key > leftChild->key) {
+            parent->left = leftChild;
+        } else {
+            parent->right = leftChild;
+        }
+        updateHeight(parent);
+    }
+}
+
+// Pre: node != nullptr
+template <class Node>
+bool isBalanced(const Node* node) {
+    assert(node != nullptr);
+    return std::abs(height(node->left) - height(node->right)) < 2;
+}
+
+//  Pre: !isBalanced(node)
+// Post: isBalanced(node)
+template <class Node>
+void balance(Node* const node) {
+    assert(node != nullptr);
+    auto isLeftHeavy = [](const Node* node) { return height(node->left) > height(node->right); };
+    if (isLeftHeavy(node)) {
+        if (!isLeftHeavy(node->left)) {
+            leftRotate(node->left);
+        }
+        rightRotate(node);
+    } else {
+        if (isLeftHeavy(node->right)) {
+            rightRotate(node->right);
+        }
+        leftRotate(node);
+    }
+}
+
 template <class Node>
 void destroy(Node* node) {
     if (node != nullptr) {
@@ -115,13 +199,13 @@ AVLTree<Key, Value>::AVLTree()
 template <class Key, class Value>
 AVLTree<Key, Value>::AVLTree(const AVLTree& other) {
 
-	// TODO
+    // TODO
 }
 
 template <class Key, class Value>
 AVLTree<Key, Value>& AVLTree<Key, Value>::operator=(AVLTree other) {
-	this->swap(other);
-	return *this;
+    this->swap(other);
+    return *this;
 }
 
 template <class Key, class Value>
@@ -156,14 +240,18 @@ bool AVLTree<Key, Value>::insert(Key key, Value value) {
     size_++;
     // Update heights and rebalance.
     // Traversing back up.
-    current->height = 1 + std::max(impl::height(current->left), impl::height(current->right));
+    impl::updateHeight(current);
     next = current->parent;
     while (next != nullptr) {
         current = next;
         next = next->parent;
-        current->height = 1 + std::max(impl::height(current->left), impl::height(current->right));
-
-        // TODO: Balance as needed.
+        impl::updateHeight(current);
+        if (!impl::isBalanced(current)) {
+            impl::balance(current);
+            if (current == root_) {
+                root_ = current->parent;
+            }
+        }
     }
     return true;
 }

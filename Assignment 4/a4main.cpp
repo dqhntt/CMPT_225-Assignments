@@ -8,16 +8,7 @@ namespace {
 // Real height.
 template <class Node>
 int height(const Node* node) {
-    if (node == nullptr) {
-        return -1;
-    }
-    if (node->left == nullptr) {
-        return height(node->right) + 1;
-    }
-    if (node->right == nullptr) {
-        return height(node->left) + 1;
-    }
-    return std::max(height(node->left), height(node->right)) + 1;
+    return (node == nullptr) ? -1 : std::max(height(node->left), height(node->right)) + 1;
 }
 
 template <class Node>
@@ -62,18 +53,25 @@ void print(const Tree& tree) {
 int main() {
     AVLTree<int, char> tree;
     char c = 'a';
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i <= 5; i++) {
+        assert(tree.insert(i, c++));
+        print(tree);
+    }
+    for (int i = -2; i <= 8; i++) {
+        tree.insert(i, c++);
+        print(tree);
+    }
+    for (int i = 10; i >= -5; i--) {
         tree.insert(i, c++);
         print(tree);
     }
     cout << "Size: " << tree.size() << '\n';
     cout << "Keys:\n";
     for (auto key : tree.keys()) {
-        cout << key << '\n';
+        cout << key << " --search-- " << tree.search(key) << '\n';
     }
     cout << "Values:\n";
     for (auto value : tree.values()) {
         cout << value << '\n';
     }
-    cout << "Search for 0: " << tree.search(0) << '\n';
 }
