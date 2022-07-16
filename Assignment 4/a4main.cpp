@@ -74,4 +74,6 @@ int main() {
     for (auto value : tree.values()) {
         cout << value << '\n';
     }
+    const int naKey = -10;
+    cout << "Search for non-existent key (" << naKey << "): " << tree.search(naKey) << '\n';
 }

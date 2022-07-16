@@ -93,52 +93,56 @@ void updateHeight(Node* node) {
 }
 
 // Pre: node != nullptr && node->right != nullptr
+// Cite: Lecture slide (John Edgar).
 template <class Node>
 void leftRotate(Node* const node) {
     assert(node != nullptr && node->right != nullptr);
-    auto* const parent = node->parent;
-    auto* const rightChild = node->right;
+    Node* const rightChild = node->right;
     node->right = rightChild->left;
-    if (node->right != nullptr) {
-        node->right->parent = node;
+    if (rightChild->left != nullptr) {
+        rightChild->left->parent = node;
     }
-    node->parent = rightChild;
+    rightChild->parent = node->parent;
+    if (node->parent != nullptr) {
+        if (node == node->parent->left) {
+            node->parent->left = rightChild;
+        } else {
+            node->parent->right = rightChild;
+        }
+    }
     rightChild->left = node;
-    rightChild->parent = parent;
+    node->parent = rightChild;
     updateHeight(node);
     updateHeight(rightChild);
-    if (parent != nullptr) {
-        if (parent->key < rightChild->key) {
-            parent->right = rightChild;
-        } else {
-            parent->left = rightChild;
-        }
-        updateHeight(parent);
+    if (rightChild->parent != nullptr) {
+        updateHeight(rightChild->parent);
     }
 }
 
 // Pre: node != nullptr && node->left != nullptr
+// Cite: Lecture slide (John Edgar).
 template <class Node>
 void rightRotate(Node* const node) {
     assert(node != nullptr && node->left != nullptr);
-    auto* const parent = node->parent;
-    auto* const leftChild = node->left;
+    Node* const leftChild = node->left;
     node->left = leftChild->right;
-    if (node->left != nullptr) {
-        node->left->parent = node;
+    if (leftChild->right != nullptr) {
+        leftChild->right->parent = node;
     }
-    node->parent = leftChild;
+    leftChild->parent = node->parent;
+    if (node->parent != nullptr) {
+        if (node == node->parent->right) {
+            node->parent->right = leftChild;
+        } else {
+            node->parent->left = leftChild;
+        }
+    }
     leftChild->right = node;
-    leftChild->parent = parent;
+    node->parent = leftChild;
     updateHeight(node);
     updateHeight(leftChild);
-    if (parent != nullptr) {
-        if (parent->key > leftChild->key) {
-            parent->left = leftChild;
-        } else {
-            parent->right = leftChild;
-        }
-        updateHeight(parent);
+    if (leftChild->parent != nullptr) {
+        updateHeight(leftChild->parent);
     }
 }
 
@@ -152,7 +156,7 @@ bool isBalanced(const Node* node) {
 //  Pre: !isBalanced(node)
 // Post: isBalanced(node)
 template <class Node>
-void balance(Node* const node) {
+void balance(Node* node) {
     assert(node != nullptr);
     auto isLeftHeavy = [](const Node* node) { return height(node->left) > height(node->right); };
     if (isLeftHeavy(node)) {
@@ -184,6 +188,20 @@ void traverseInOrder(Node* node, UnaryFunction func) {
         func(node);
         traverseInOrder(node->right, func);
     }
+}
+
+template <class Key, class Node>
+Node* nodeMatching(const Key& key, Node* node) {
+    while (node != nullptr) {
+        if (key < node->key) {
+            node = node->left;
+        } else if (key > node->key) {
+            node = node->right;
+        } else {
+            return node;
+        }
+    }
+    throw std::runtime_error("Key not found.");
 }
 
 } // namespace impl
@@ -271,17 +289,7 @@ void AVLTree<Key, Value>::swap(AVLTree& other) {
 
 template <class Key, class Value>
 const Value& AVLTree<Key, Value>::search(const Key& key) const {
-    const auto* current = root_;
-    while (current != nullptr) {
-        if (key < current->key) {
-            current = current->left;
-        } else if (key > current->key) {
-            current = current->right;
-        } else {
-            return current->value;
-        }
-    }
-    throw std::runtime_error(std::string("Key not found: ") + __PRETTY_FUNCTION__);
+    return impl::nodeMatching(key, root_)->value;
 }
 
 template <class Key, class Value>
@@ -289,7 +297,7 @@ std::vector<Value> AVLTree<Key, Value>::values() const {
     std::vector<Value> values;
     values.reserve(size_);
     impl::traverseInOrder(
-        root_, [&values](const decltype(root_) node) { values.push_back(node->value); });
+        root_, [&values](decltype(root_) node) { values.push_back(node->value); });
     return values;
 }
 
@@ -297,8 +305,7 @@ template <class Key, class Value>
 std::vector<Key> AVLTree<Key, Value>::keys() const {
     std::vector<Key> keys;
     keys.reserve(size_);
-    impl::traverseInOrder(
-        root_, [&keys](const decltype(root_) node) { keys.push_back(node->key); });
+    impl::traverseInOrder(root_, [&keys](decltype(root_) node) { keys.push_back(node->key); });
     return keys;
 }
 
