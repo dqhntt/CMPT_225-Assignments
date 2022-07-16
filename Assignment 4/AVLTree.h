@@ -215,9 +215,14 @@ AVLTree<Key, Value>::AVLTree()
 { }
 
 template <class Key, class Value>
-AVLTree<Key, Value>::AVLTree(const AVLTree& other) {
-
+AVLTree<Key, Value>::AVLTree(const AVLTree& other)
+    : AVLTree()
+{
     // TODO
+
+    // An AVL tree but not the same.
+    impl::traverseInOrder(other.root_,
+        [this](const AVLTreeNode<Key, Value>* node) { this->insert(node->key, node->value); });
 }
 
 template <class Key, class Value>
@@ -297,7 +302,7 @@ std::vector<Value> AVLTree<Key, Value>::values() const {
     std::vector<Value> values;
     values.reserve(size_);
     impl::traverseInOrder(
-        root_, [&values](decltype(root_) node) { values.push_back(node->value); });
+        root_, [&values](const AVLTreeNode<Key, Value>* node) { values.push_back(node->value); });
     return values;
 }
 
@@ -305,7 +310,8 @@ template <class Key, class Value>
 std::vector<Key> AVLTree<Key, Value>::keys() const {
     std::vector<Key> keys;
     keys.reserve(size_);
-    impl::traverseInOrder(root_, [&keys](decltype(root_) node) { keys.push_back(node->key); });
+    impl::traverseInOrder(
+        root_, [&keys](const AVLTreeNode<Key, Value>* node) { keys.push_back(node->key); });
     return keys;
 }
 

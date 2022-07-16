@@ -1,7 +1,6 @@
 // a4main.cpp
 #include "AVLTree.h"
 #include <iostream>
-using namespace std;
 
 namespace {
 
@@ -11,22 +10,11 @@ int height(const Node* node) {
     return (node == nullptr) ? -1 : std::max(height(node->left), height(node->right)) + 1;
 }
 
-template <class Node>
-void print(const Node* node) {
-    if (node != nullptr) {
-        print(node->left);
-        cout << "(" << node->key << ", " << node->value << " | " << node->height << ")\n";
-        print(node->right);
-    }
-}
-
 // Cite: https://stackoverflow.com/questions/36802354/print-binary-tree-in-a-pretty-way-using-c
 template <class Node>
 void print(const std::string& prefix, const Node* node, bool isLeft) {
     if (node != nullptr) {
-        std::cout << prefix;
-
-        std::cout << (isLeft ? "├──" : "└──");
+        std::cout << prefix << (isLeft ? "├──" : "└──");
 
         // print the value of the node
         std::cout << "(" << node->key << ", " << node->value << " | " << node->height << "; "
@@ -42,15 +30,19 @@ void print(const std::string& prefix, const Node* node, bool isLeft) {
 
 template <class Tree>
 void print(const Tree& tree) {
-    cout << "----------\n";
-    // print(tree.getRoot());
+    std::cout << ".------------------.\n"
+                 "|------Up-Left-----|\n"
+                 "|----Down-Right----|\n"
+                 "*------------------*\n";
     print("", tree.getRoot(), false);
-    cout << "----------\n";
+    std::cout << '\n';
 }
 
 } // namespace
 
 int main() {
+    using std::cout;
+
     AVLTree<int, char> tree;
     char c = 'a';
     for (int i = 0; i <= 5; i++) {
@@ -65,6 +57,11 @@ int main() {
         tree.insert(i, c++);
         print(tree);
     }
+
+    cout << "New copied tree:\n";
+    auto copy = tree;
+    print(copy);
+
     cout << "Size: " << tree.size() << '\n';
     cout << "Keys:\n";
     for (auto key : tree.keys()) {
