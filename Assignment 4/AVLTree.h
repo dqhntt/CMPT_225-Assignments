@@ -159,8 +159,9 @@ template <class Node>
 void balance(Node* node) {
     assert(node != nullptr);
     auto isLeftHeavy = [](const Node* node) { return height(node->left) > height(node->right); };
+    auto isRightHeavy = [](const Node* node) { return height(node->right) > height(node->left); };
     if (isLeftHeavy(node)) {
-        if (!isLeftHeavy(node->left)) {
+        if (isRightHeavy(node->left)) {
             leftRotate(node->left);
         }
         rightRotate(node);
@@ -188,6 +189,27 @@ void traverseInOrder(Node* node, UnaryFunction func) {
         func(node);
         traverseInOrder(node->right, func);
     }
+}
+
+// Pre: node != nullptr
+template <class Node>
+Node* predecessor(Node* node) {
+    assert(node != nullptr);
+    auto* next = node->left;
+    while (next != nullptr) {
+        node = next;
+        next = next->right;
+    }
+    return node;
+}
+
+// Pre: x != nullptr && y != nullptr
+template <class Node>
+void swapContents(Node* x, Node* y) {
+    #warning "TODO: Swap nodes instead of data."
+    assert(x != nullptr && y != nullptr);
+    std::swap(x->key, y->key);
+    std::swap(x->value, y->value);
 }
 
 template <class Key, class Node>
@@ -218,7 +240,7 @@ template <class Key, class Value>
 AVLTree<Key, Value>::AVLTree(const AVLTree& other)
     : AVLTree()
 {
-    // TODO
+    #warning "TODO: Use a better way (BFS?)."
 
     // An AVL tree but not the same.
     impl::traverseInOrder(other.root_,
@@ -260,7 +282,6 @@ bool AVLTree<Key, Value>::insert(Key key, Value value) {
     } else {
         current->right = newNode;
     }
-    size_++;
     // Update heights and rebalance.
     // Traversing back up.
     impl::updateHeight(current);
@@ -276,14 +297,75 @@ bool AVLTree<Key, Value>::insert(Key key, Value value) {
             }
         }
     }
+    size_++;
     return true;
 }
 
 template <class Key, class Value>
 bool AVLTree<Key, Value>::remove(const Key& key) {
-
-	// TODO
-    return {};
+    decltype(root_) node = nullptr;
+    // Check if key exists.
+    try {
+        node = impl::nodeMatching(key, root_);
+    } catch (const std::runtime_error&) {
+        return false;
+    }
+    auto* next = node;
+    if (node->left != nullptr && node->right != nullptr) { // 2 children.
+        next = impl::predecessor(node);
+        impl::swapContents(node, next);
+        node = next->parent;
+        // Destroy and reconnect.
+        // Predecessor can't have right child.
+        if (node->right == next) {
+            node->right = next->left;
+        } else {
+            node->left = next->left;
+        }
+        if (next->left != nullptr) {
+            next->left->parent = node;
+        }
+        delete next;
+        next = nullptr;
+    } else { // 0 or 1 child.
+        if (node->left == nullptr) {
+            next = node->right;
+        } else {
+            next = node->left;
+        }
+        auto* const parent = node->parent;
+        // Reconnect.
+        if (parent != nullptr) {
+            if (parent->left == node) {
+                parent->left = next;
+            } else {
+                parent->right = next;
+            }
+        } else { // Already at the top.
+            root_ = next;
+        }
+        if (next != nullptr) {
+            next->parent = parent;
+        }
+        delete node;
+        node = parent;
+    }
+    // Update heights and rebalance.
+    // Traversing back up.
+    next = node;
+    while (next != nullptr) {
+        node = next;
+        next = next->parent;
+        impl::updateHeight(node);
+        if (!impl::isBalanced(node)) {
+            impl::balance(node);
+            if (node == root_) {
+                root_ = node->parent;
+            }
+        }
+    }
+    size_--;
+    return true;
 }
 
 template <class Key, class Value>
