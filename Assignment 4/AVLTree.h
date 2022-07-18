@@ -336,33 +336,21 @@ Node* nodeMatching(const Key& key, Node* node) {
     throw std::runtime_error("Key not found.");
 }
 
-// Returns a clone of root whose parents are all nullptr.
+// Returns a clone of root.
 // Cite: https://stackoverflow.com/questions/49796568
 template <class Node>
-Node* cloneTreeWithAllParentsAsNull(const Node* root) {
-    return (root == nullptr)
-        ? nullptr
-        : new Node(root->key, root->value, root->height,
-            cloneTreeWithAllParentsAsNull(root->left),
-            cloneTreeWithAllParentsAsNull(root->right));
-}
-
-// Make all children in tree recognize their real parents.
-// For use after calling cloneTreeWithAllParentsAsNull()
-template <class Node>
-void fixAllLinksToParents(Node* child, Node* parent = nullptr) {
-    if (child != nullptr) {
-        child->parent = parent;
-        fixAllLinksToParents(child->left, child);
-        fixAllLinksToParents(child->right, child);
-    }
-}
-
-// Returns a clone of root.
-template <class Node>
 Node* cloneAVL(const Node* root) {
-    Node* const newNode = cloneTreeWithAllParentsAsNull(root);
-    fixAllLinksToParents(newNode);
+    if (root == nullptr) {
+        return nullptr;
+    }
+    Node* const newNode = new Node(
+        root->key, root->value, root->height, cloneAVL(root->left), cloneAVL(root->right));
+    if (newNode->left != nullptr) {
+        newNode->left->parent = newNode;
+    }
+    if (newNode->right != nullptr) {
+        newNode->right->parent = newNode;
+    }
     return newNode;
 }
 
