@@ -4,6 +4,12 @@
 
 namespace {
 
+// Real size.
+template <class Node>
+unsigned size(const Node* node) {
+    return (node == nullptr) ? 0 : size(node->left) + size(node->right) + 1;
+}
+
 // Real height.
 template <class Node>
 int height(const Node* node) {
@@ -36,6 +42,7 @@ void print(const Tree& tree) {
                  "*------------------*\n";
     print("", tree.getRoot(), false);
     std::cout << std::endl;
+    assert(tree.size() == size(tree.getRoot()));
 }
 
 template <class Tree>
@@ -80,7 +87,7 @@ void removeTest(Tree& tree) {
 // Cite:
 // https://stackoverflow.com/questions/213761/what-are-some-uses-of-template-template-parameters
 template <template <class, class> class Tree, class Key, class Value>
-void insertRemoveStressTest(Tree<Key, Value>& tree, int maxSize = 20) {
+void insertRemoveStressTest(Tree<Key, Value>& tree, unsigned maxSize = 2000) {
     static_assert(std::is_convertible<int, Key>::value,
         "int to Key conversion is needed for this test function.");
     tree = {};
@@ -105,9 +112,10 @@ void insertRemoveStressTest(Tree<Key, Value>& tree, int maxSize = 20) {
 
 int main() {
     using std::cout;
-    srand(time(0));
+    srand(static_cast<unsigned>(time(nullptr))); // srand(time(0));
 
     AVLTree<int, char> tree;
+
     insertTest(tree);
 
     cout << "Size: " << tree.size() << '\n';
@@ -139,7 +147,7 @@ int main() {
     }
 
     insertRemoveStressTest(tree);
-    print(tree);
+    //print(tree);
     cout << "Size: " << tree.size() << '\n';
 
     const int naKey = -1;

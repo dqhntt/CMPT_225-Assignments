@@ -79,6 +79,121 @@ private:
 // Helper functions for AVLTree.
 namespace impl {
 
+// Pre: child != nullptr &&
+//      child->parent != nullptr
+// Post: child is still connected to child->parent,
+//       child->parent is no longer connected to child, replaced with newNode.
+template <class Node>
+void replaceLinkFromParentOf(const Node* child, Node* newNode) {
+    assert(child != nullptr && child->parent != nullptr);
+    if (child->parent->left == child) {
+        child->parent->left = newNode;
+    } else {
+        child->parent->right = newNode;
+    }
+}
+
+// Pre: x != nullptr &&
+//      y != nullptr &&
+//      x->parent != y &&
+//      y->parent != x
+template <class Node>
+void swapNonAdjNodes(Node* x, Node* y) {
+    assert(x != nullptr && y != nullptr && x->parent != y && y->parent != x);
+    std::swap(x->height, y->height);
+    // Swap parents.
+    if (x->parent != nullptr) {
+        replaceLinkFromParentOf(x, y);
+    }
+    if (y->parent != nullptr) {
+        replaceLinkFromParentOf(y, x);
+    }
+    std::swap(x->parent, y->parent);
+    // Swap left children.
+    if (x->left != nullptr && y->left != nullptr) {
+        std::swap(x->left->parent, y->left->parent);
+    } else if (x->left != nullptr) {
+        x->left->parent = y;
+    } else {
+        y->left->parent = x;
+    }
+    std::swap(x->left, y->left);
+    // Swap right children.
+    if (x->right != nullptr && y->right != nullptr) {
+        std::swap(x->right->parent, y->right->parent);
+    } else if (x->right != nullptr) {
+        x->right->parent = y;
+    } else {
+        y->right->parent = x;
+    }
+    std::swap(x->right, y->right);
+}
+
+// Pre: child != nullptr &&
+//      parent != nullptr &&
+//      child->parent == parent
+template <class Node>
+void swapAdjNodes(Node* child, Node* parent) {
+    assert(child != nullptr && parent != nullptr && child->parent == parent);
+    std::swap(child->height, parent->height);
+    // Swap parents.
+    if (parent->parent != nullptr) {
+        replaceLinkFromParentOf(parent, child);
+    }
+    child->parent = parent->parent;
+    parent->parent = child;
+    // Swap children.
+    if (parent->left == child) {
+        parent->left = child->left;
+        if (child->left != nullptr) {
+            child->left->parent = parent;
+        }
+        child->left = parent;
+        if (child->right != nullptr && parent->right != nullptr) {
+            std::swap(child->right->parent, parent->right->parent);
+        } else if (child->right != nullptr) {
+            child->right->parent = parent;
+        } else {
+            parent->right->parent = child;
+        }
+        std::swap(child->right, parent->right);
+    } else {
+        // parent->right == child
+        parent->right = child->right;
+        if (child->right != nullptr) {
+            child->right->parent = parent;
+        }
+        child->right = parent;
+        if (child->left != nullptr && parent->left != nullptr) {
+            std::swap(child->left->parent, parent->left->parent);
+        } else if (child->left != nullptr) {
+            child->left->parent = parent;
+        } else {
+            parent->left->parent = child;
+        }
+        std::swap(child->left, parent->left);
+    }
+}
+
+// Pre: x != nullptr && y != nullptr
+template <class Node>
+void swapNodes(Node& x, Node& y) {
+    assert(x != nullptr && y != nullptr);
+    if (x == y) {
+        return;
+    }
+    // Swap shells.
+    if (x->parent != y && y->parent != x) {
+        swapNonAdjNodes(x, y);
+    } else if (x->parent == y) {
+        swapAdjNodes(x, y);
+    } else {
+        swapAdjNodes(y, x);
+    }
+    // Swap caller's handles.
+    std::swap(x, y);
+}
+
 template <class Node>
 int height(const Node* node) {
     return (node == nullptr) ? -1 : node->height;
@@ -104,11 +219,7 @@ void leftRotate(Node* const node) {
     }
     rightChild->parent = node->parent;
     if (node->parent != nullptr) {
-        if (node == node->parent->left) {
-            node->parent->left = rightChild;
-        } else {
-            node->parent->right = rightChild;
-        }
+        replaceLinkFromParentOf(node, rightChild);
     }
     rightChild->left = node;
     node->parent = rightChild;
@@ -131,11 +242,7 @@ void rightRotate(Node* const node) {
     }
     leftChild->parent = node->parent;
     if (node->parent != nullptr) {
-        if (node == node->parent->right) {
-            node->parent->right = leftChild;
-        } else {
-            node->parent->left = leftChild;
-        }
+        replaceLinkFromParentOf(node, leftChild);
     }
     leftChild->right = node;
     node->parent = leftChild;
@@ -195,7 +302,7 @@ void traverseInOrder(Node* node, UnaryFunction func) {
 template <class Node>
 Node* predecessor(Node* node) {
     assert(node != nullptr);
-    auto* next = node->left;
+    Node* next = node->left;
     while (next != nullptr) {
         node = next;
         next = next->right;
@@ -203,13 +310,16 @@ Node* predecessor(Node* node) {
     return node;
 }
 
-// Pre: x != nullptr && y != nullptr
+// Pre: node != nullptr
 template <class Node>
-void swapContents(Node* x, Node* y) {
-    #warning "TODO: Swap nodes instead of data."
-    assert(x != nullptr && y != nullptr);
-    std::swap(x->key, y->key);
-    std::swap(x->value, y->value);
+Node* successor(Node* node) {
+    assert(node != nullptr);
+    Node* next = node->right;
+    while (next != nullptr) {
+        node = next;
+        next = next->left;
+    }
+    return node;
 }
 
 template <class Key, class Node>
@@ -311,23 +421,42 @@ bool AVLTree<Key, Value>::remove(const Key& key) {
         return false;
     }
     auto* next = node;
-    if (node->left != nullptr && node->right != nullptr) { // 2 children.
-        next = impl::predecessor(node);
-        impl::swapContents(node, next);
+    if (node->left != nullptr && node->right != nullptr) {
+        // 2 children.
+        const bool usePredecessor = rand() % 2;
+        next = usePredecessor ? impl::predecessor(node) : impl::successor(node);
+        impl::swapNodes(node, next);
+        // Swapped nodes instead of data.
+        if (root_ == next) {
+            root_ = node;
+        }
         node = next->parent;
         // Destroy and reconnect.
-        // Predecessor can't have right child.
-        if (node->right == next) {
-            node->right = next->left;
+        if (usePredecessor) {
+            // Predecessor can't have right child.
+            if (node->right == next) {
+                node->right = next->left;
+            } else {
+                node->left = next->left;
+            }
+            if (next->left != nullptr) {
+                next->left->parent = node;
+            }
         } else {
-            node->left = next->left;
-        }
-        if (next->left != nullptr) {
-            next->left->parent = node;
+            // Successor can't have left child.
+            if (node->left == next) {
+                node->left = next->right;
+            } else {
+                node->right = next->right;
+            }
+            if (next->right != nullptr) {
+                next->right->parent = node;
+            }
         }
         delete next;
         next = nullptr;
-    } else { // 0 or 1 child.
+    } else {
+        // 0 or 1 child.
         if (node->left == nullptr) {
             next = node->right;
         } else {
