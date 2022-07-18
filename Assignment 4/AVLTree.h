@@ -336,6 +336,36 @@ Node* nodeMatching(const Key& key, Node* node) {
     throw std::runtime_error("Key not found.");
 }
 
+// Returns a clone of root whose parents are all nullptr.
+// Cite: https://stackoverflow.com/questions/49796568
+template <class Node>
+Node* cloneTreeWithAllParentsAsNull(const Node* root) {
+    return (root == nullptr)
+        ? nullptr
+        : new Node(root->key, root->value, root->height,
+            cloneTreeWithAllParentsAsNull(root->left),
+            cloneTreeWithAllParentsAsNull(root->right));
+}
+
+// Make all children in tree recognize their real parents.
+// For use after calling cloneTreeWithAllParentsAsNull()
+template <class Node>
+void fixAllLinksToParents(Node* child, Node* parent = nullptr) {
+    if (child != nullptr) {
+        child->parent = parent;
+        fixAllLinksToParents(child->left, child);
+        fixAllLinksToParents(child->right, child);
+    }
+}
+
+// Returns a clone of root.
+template <class Node>
+Node* cloneAVL(const Node* root) {
+    Node* const newNode = cloneTreeWithAllParentsAsNull(root);
+    fixAllLinksToParents(newNode);
+    return newNode;
+}
+
 } // namespace impl
 
 // AVL Tree Methods go here
@@ -348,14 +378,10 @@ AVLTree<Key, Value>::AVLTree()
 
 template <class Key, class Value>
 AVLTree<Key, Value>::AVLTree(const AVLTree& other)
-    : AVLTree()
-{
-    #warning "TODO: Use a better way (BFS?)."
+    : size_(other.size_)
+    , root_(impl::cloneAVL(other.root_))
+{ }
 
-    // An AVL tree but not the same.
-    impl::traverseInOrder(other.root_,
-        [this](const AVLTreeNode<Key, Value>* node) { this->insert(node->key, node->value); });
-}
 
 template <class Key, class Value>
 AVLTree<Key, Value>& AVLTree<Key, Value>::operator=(AVLTree other) {

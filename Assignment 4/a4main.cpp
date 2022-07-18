@@ -133,6 +133,13 @@ int main() {
     cout << "New copied tree:\n";
     const auto copy = tree;
     print(copy);
+    const auto copiedRoot = copy.getRoot();
+    assert(copiedRoot->left->parent == copiedRoot);
+    assert(copiedRoot->right->parent == copiedRoot);
+    assert(copiedRoot->left->left->parent == copiedRoot->left);
+    assert(copiedRoot->left->right->parent == copiedRoot->left);
+    assert(copiedRoot->right->left->parent == copiedRoot->right);
+    assert(copiedRoot->right->right->parent == copiedRoot->right);
 
     removeTest(tree);
 
@@ -147,7 +154,7 @@ int main() {
     }
 
     insertRemoveStressTest(tree);
-    //print(tree);
+    // print(tree);
     cout << "Size: " << tree.size() << '\n';
 
     const int naKey = -1;
