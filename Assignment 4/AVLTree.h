@@ -58,6 +58,7 @@ class AVLTree {
 public:
     AVLTree();
     AVLTree(const AVLTree& other);
+    AVLTree(AVLTree&& other);
     AVLTree& operator=(AVLTree other);
     ~AVLTree();
     bool insert(Key key, Value value);
@@ -370,6 +371,14 @@ AVLTree<Key, Value>::AVLTree(const AVLTree& other)
     , root_(impl::cloneAVL(other.root_))
 { }
 
+template <class Key, class Value>
+AVLTree<Key, Value>::AVLTree(AVLTree&& other)
+    : size_(other.size_)
+    , root_(other.root_)
+{
+    other.size_ = 0;
+    other.root_ = nullptr;
+}
 
 template <class Key, class Value>
 AVLTree<Key, Value>& AVLTree<Key, Value>::operator=(AVLTree other) {
