@@ -77,6 +77,13 @@ private:
     AVLTreeNode<Key, Value>* root_;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                               //
+//           AVLTree implementations are near line 385.                                          //
+//           Click dropdown arrow next to namespace impl to quickly get there.                   //
+//                                                                                               //
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Helper functions for AVLTree.
 namespace impl {
 
@@ -94,23 +101,10 @@ void replaceLinkFromParentOf(const Node* child, Node* newNode) {
     }
 }
 
-// Pre: x != nullptr &&
-//      y != nullptr &&
-//      x->parent != y &&
-//      y->parent != x
+// Pre: x != nullptr && y != nullptr
 template <class Node>
-void swapNonAdjNodes(Node* x, Node* y) {
-    assert(x != nullptr && y != nullptr && x->parent != y && y->parent != x);
-    std::swap(x->height, y->height);
-    // Swap parents.
-    if (x->parent != nullptr) {
-        replaceLinkFromParentOf(x, y);
-    }
-    if (y->parent != nullptr) {
-        replaceLinkFromParentOf(y, x);
-    }
-    std::swap(x->parent, y->parent);
-    // Swap left children.
+void swapLeftChildren(Node& x, Node& y) {
+    assert(x != nullptr && y != nullptr);
     if (x->left != nullptr && y->left != nullptr) {
         std::swap(x->left->parent, y->left->parent);
     } else if (x->left != nullptr) {
@@ -119,7 +113,12 @@ void swapNonAdjNodes(Node* x, Node* y) {
         y->left->parent = x;
     }
     std::swap(x->left, y->left);
-    // Swap right children.
+}
+
+// Pre: x != nullptr && y != nullptr
+template <class Node>
+void swapRightChildren(Node& x, Node& y) {
+    assert(x != nullptr && y != nullptr);
     if (x->right != nullptr && y->right != nullptr) {
         std::swap(x->right->parent, y->right->parent);
     } else if (x->right != nullptr) {
@@ -130,12 +129,35 @@ void swapNonAdjNodes(Node* x, Node* y) {
     std::swap(x->right, y->right);
 }
 
+// Pre: x != nullptr &&
+//      y != nullptr &&
+//      x->parent != y &&
+//      y->parent != x
+template <class Node>
+void swapNonAdjNodes(Node* x, Node* y) {
+    assert(x != nullptr && y != nullptr && x->parent != y && y->parent != x);
+    // Swap heights.
+    std::swap(x->height, y->height);
+    // Swap parents.
+    if (x->parent != nullptr) {
+        replaceLinkFromParentOf(x, y);
+    }
+    if (y->parent != nullptr) {
+        replaceLinkFromParentOf(y, x);
+    }
+    std::swap(x->parent, y->parent);
+    // Swap children.
+    swapLeftChildren(x, y);
+    swapRightChildren(x, y);
+}
+
 // Pre: child != nullptr &&
 //      parent != nullptr &&
 //      child->parent == parent
 template <class Node>
 void swapAdjNodes(Node* child, Node* parent) {
     assert(child != nullptr && parent != nullptr && child->parent == parent);
+    // Swap heights.
     std::swap(child->height, parent->height);
     // Swap parents.
     if (parent->parent != nullptr) {
@@ -150,14 +172,7 @@ void swapAdjNodes(Node* child, Node* parent) {
             child->left->parent = parent;
         }
         child->left = parent;
-        if (child->right != nullptr && parent->right != nullptr) {
-            std::swap(child->right->parent, parent->right->parent);
-        } else if (child->right != nullptr) {
-            child->right->parent = parent;
-        } else {
-            parent->right->parent = child;
-        }
-        std::swap(child->right, parent->right);
+        swapRightChildren(child, parent);
     } else {
         // parent->right == child
         parent->right = child->right;
@@ -165,14 +180,7 @@ void swapAdjNodes(Node* child, Node* parent) {
             child->right->parent = parent;
         }
         child->right = parent;
-        if (child->left != nullptr && parent->left != nullptr) {
-            std::swap(child->left->parent, parent->left->parent);
-        } else if (child->left != nullptr) {
-            child->left->parent = parent;
-        } else {
-            parent->left->parent = child;
-        }
-        std::swap(child->left, parent->left);
+        swapLeftChildren(child, parent);
     }
 }
 
@@ -265,7 +273,7 @@ bool isBalanced(const Node* node) {
 // Post: isBalanced(node)
 template <class Node>
 void balance(Node* node) {
-    assert(node != nullptr);
+    assert(!isBalanced(node));
     auto isLeftHeavy = [](const Node* node) { return height(node->left) > height(node->right); };
     auto isRightHeavy = [](const Node* node) { return height(node->right) > height(node->left); };
     if (isLeftHeavy(node)) {
@@ -278,24 +286,6 @@ void balance(Node* node) {
             rightRotate(node->right);
         }
         leftRotate(node);
-    }
-}
-
-template <class Node>
-void destroy(Node* node) {
-    if (node != nullptr) {
-        destroy(node->left);
-        destroy(node->right);
-        delete node;
-    }
-}
-
-template <class Node, class UnaryFunction = void(Node*)>
-void traverseInOrder(Node* node, UnaryFunction func) {
-    if (node != nullptr) {
-        traverseInOrder(node->left, func);
-        func(node);
-        traverseInOrder(node->right, func);
     }
 }
 
@@ -355,9 +345,40 @@ Node* cloneAVL(const Node* root) {
     return newNode;
 }
 
+template <class Node, class UnaryFunction = void(Node*)>
+void traversePreOrder(Node* node, UnaryFunction func) {
+    if (node != nullptr) {
+        func(node);
+        traversePreOrder(node->left, func);
+        traversePreOrder(node->right, func);
+    }
+}
+
+template <class Node, class UnaryFunction = void(Node*)>
+void traverseInOrder(Node* node, UnaryFunction func) {
+    if (node != nullptr) {
+        traverseInOrder(node->left, func);
+        func(node);
+        traverseInOrder(node->right, func);
+    }
+}
+
+template <class Node, class UnaryFunction = void(Node*)>
+void traversePostOrder(Node* node, UnaryFunction func) {
+    if (node != nullptr) {
+        traversePostOrder(node->left, func);
+        traversePostOrder(node->right, func);
+        func(node);
+    }
+}
+
 } // namespace impl
 
-// AVL Tree Methods go here
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                               //
+//           AVL Tree Methods go below.                                                          //
+//                                                                                               //
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Key, class Value>
 AVLTree<Key, Value>::AVLTree()
@@ -388,7 +409,7 @@ AVLTree<Key, Value>& AVLTree<Key, Value>::operator=(AVLTree other) {
 
 template <class Key, class Value>
 AVLTree<Key, Value>::~AVLTree() {
-    impl::destroy(root_);
+    impl::traversePostOrder(root_, [](decltype(root_) node) { delete node; });
 }
 
 template <class Key, class Value>
@@ -406,9 +427,9 @@ bool AVLTree<Key, Value>::insert(Key key, Value value) {
             return false; // Indicating duplicate keys.
         }
     }
-    // Insert.
+    // Insert leaf.
     auto* const newNode = new AVLTreeNode<Key, Value>(std::move(key), std::move(value), current);
-    if (current == nullptr) { // current == root_ == nullptr.
+    if (current == nullptr) { // current == next == root_ == nullptr.
         current = root_ = newNode;
     } else if (newNode->key < current->key) {
         current->left = newNode;
@@ -436,59 +457,59 @@ bool AVLTree<Key, Value>::insert(Key key, Value value) {
 
 template <class Key, class Value>
 bool AVLTree<Key, Value>::remove(const Key& key) {
-    decltype(root_) node = nullptr;
+    decltype(root_) current = nullptr;
     // Check if key exists.
     try {
-        node = impl::nodeMatching(key, root_);
+        current = impl::nodeMatching(key, root_);
     } catch (const std::runtime_error&) {
         return false;
     }
-    auto* next = node;
-    if (node->left != nullptr && node->right != nullptr) {
+    auto* next = current;
+    if (current->left != nullptr && current->right != nullptr) {
         // 2 children.
         const bool usePredecessor = rand() % 2;
-        next = usePredecessor ? impl::predecessor(node) : impl::successor(node);
-        impl::swapNodes(node, next);
-        // Swapped nodes instead of data.
+        next = usePredecessor ? impl::predecessor(current) : impl::successor(current);
+        impl::swapNodes(next, current);
+        // Data remains at the same address, notifying their parties.
         if (root_ == next) {
-            root_ = node;
+            root_ = current;
         }
-        node = next->parent;
-        // Destroy and reconnect.
+        current = next->parent;
+        // Reconnect and destroy.
         if (usePredecessor) {
             // Predecessor can't have right child.
-            if (node->right == next) {
-                node->right = next->left;
+            if (current->right == next) {
+                current->right = next->left;
             } else {
-                node->left = next->left;
+                current->left = next->left;
             }
             if (next->left != nullptr) {
-                next->left->parent = node;
+                next->left->parent = current;
             }
         } else {
             // Successor can't have left child.
-            if (node->left == next) {
-                node->left = next->right;
+            if (current->left == next) {
+                current->left = next->right;
             } else {
-                node->right = next->right;
+                current->right = next->right;
             }
             if (next->right != nullptr) {
-                next->right->parent = node;
+                next->right->parent = current;
             }
         }
         delete next;
         next = nullptr;
     } else {
         // 0 or 1 child.
-        if (node->left == nullptr) {
-            next = node->right;
+        if (current->left == nullptr) {
+            next = current->right;
         } else {
-            next = node->left;
+            next = current->left;
         }
-        auto* const parent = node->parent;
+        auto* const parent = current->parent;
         // Reconnect.
         if (parent != nullptr) {
-            if (parent->left == node) {
+            if (parent->left == current) {
                 parent->left = next;
             } else {
                 parent->right = next;
@@ -499,20 +520,20 @@ bool AVLTree<Key, Value>::remove(const Key& key) {
         if (next != nullptr) {
             next->parent = parent;
         }
-        delete node;
-        node = parent;
+        delete current;
+        current = parent;
     }
     // Update heights and rebalance.
     // Traversing back up.
-    next = node;
+    next = current;
     while (next != nullptr) {
-        node = next;
+        current = next;
         next = next->parent;
-        impl::updateHeight(node);
-        if (!impl::isBalanced(node)) {
-            impl::balance(node);
-            if (node == root_) {
-                root_ = node->parent;
+        impl::updateHeight(current);
+        if (!impl::isBalanced(current)) {
+            impl::balance(current);
+            if (current == root_) {
+                root_ = current->parent;
             }
         }
     }
