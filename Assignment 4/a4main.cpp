@@ -4,9 +4,15 @@
 
 namespace {
 
+// A root with its type.
+template <class Key, class Value, class Node = AVLTreeNode<Key, Value>>
+const Node* getRoot(const AVLTree<Key, Value>& tree) {
+    return static_cast<Node*>(tree.getRoot());
+}
+
 // Real size.
 template <class Node>
-unsigned size(const Node* node) {
+int size(const Node* node) {
     return (node == nullptr) ? 0 : size(node->left) + size(node->right) + 1;
 }
 
@@ -40,9 +46,17 @@ void print(const Tree& tree) {
                  "|------Up-Left-----|\n"
                  "|----Down-Right----|\n"
                  "*------------------*\n";
-    print("", tree.getRoot(), false);
+    print("", getRoot(tree), false);
     std::cout << std::endl;
-    assert(tree.size() == size(tree.getRoot()));
+    assert(size(getRoot(tree)) == static_cast<int>(tree.size()));
+}
+
+template <class Node>
+bool hasChildrenLinkedToParents(const Node* child, const Node* parent = nullptr) {
+    return (child == nullptr)
+        || (child->parent == parent
+            && hasChildrenLinkedToParents(child->left, child)
+            && hasChildrenLinkedToParents(child->right, child));
 }
 
 template <class Tree>
@@ -84,10 +98,8 @@ void removeTest(Tree& tree) {
     }
 }
 
-// Cite:
-// https://stackoverflow.com/questions/213761/what-are-some-uses-of-template-template-parameters
-template <template <class, class> class Tree, class Key, class Value>
-void insertRemoveStressTest(Tree<Key, Value>& tree, unsigned maxSize = 2000) {
+template <class Key, class Value>
+void insertRemoveStressTest(AVLTree<Key, Value>& tree, unsigned maxSize = 2000) {
     static_assert(std::is_convertible<int, Key>::value,
         "int to Key conversion is needed for this test function.");
     tree = {};
@@ -133,13 +145,7 @@ int main() {
     cout << "New copied tree:\n";
     const auto copy = tree;
     print(copy);
-    const auto copiedRoot = copy.getRoot();
-    assert(copiedRoot->left->parent == copiedRoot);
-    assert(copiedRoot->right->parent == copiedRoot);
-    assert(copiedRoot->left->left->parent == copiedRoot->left);
-    assert(copiedRoot->left->right->parent == copiedRoot->left);
-    assert(copiedRoot->right->left->parent == copiedRoot->right);
-    assert(copiedRoot->right->right->parent == copiedRoot->right);
+    assert(hasChildrenLinkedToParents(getRoot(copy)));
 
     removeTest(tree);
 
@@ -157,6 +163,11 @@ int main() {
     // print(tree);
     cout << "Size: " << tree.size() << '\n';
 
-    const int naKey = -1;
-    cout << "Search for non-existent key (" << naKey << "): " << tree.search(naKey) << '\n';
+    try {
+        const int naKey = -1;
+        cout << "Search for non-existent key (" << naKey << "): " << tree.search(naKey) << '\n';
+        assert(false && "Expected exception not thrown.");
+    } catch (const std::runtime_error& re) {
+        cout << "Expected exception caught: " << re.what() << '\n';
+    }
 }

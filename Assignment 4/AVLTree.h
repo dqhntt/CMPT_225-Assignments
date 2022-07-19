@@ -67,7 +67,7 @@ public:
     std::vector<Value> values() const;
     std::vector<Key> keys() const;
     std::size_t size() const;
-    AVLTreeNode<Key, Value>* getRoot() const { return root_; }; // DO NOT REMOVE
+    void* getRoot() const { return root_; }; // DO NOT REMOVE
 
 private:
     // Tree attributes go here
