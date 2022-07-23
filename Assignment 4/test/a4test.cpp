@@ -576,7 +576,7 @@ SCENARIO_TEMPLATE("Copy constructor and operator make copies", T, char, short, u
             REQUIRE(isValidAVL(tree));
             THEN("They are the same") { REQUIRE(tree == randTree); }
             AND_WHEN("The copied-from tree is modified") {
-                randTree = {};
+                randTree = makeTree<T, char>({});
                 REQUIRE(isValidAVL(randTree));
                 REQUIRE(isValidAVL(tree));
                 THEN("They are now different") { REQUIRE(tree != randTree); }
@@ -592,7 +592,7 @@ SCENARIO_TEMPLATE("Copy constructor and operator make copies", T, char, short, u
             REQUIRE(isValidAVL(tree));
             THEN("The copy is identical") { REQUIRE(tree == copy); }
             AND_WHEN("The copied-from tree is modified") {
-                tree = {};
+                tree = makeTree<T, char>({});
                 REQUIRE(isValidAVL(tree));
                 REQUIRE(isValidAVL(copy));
                 THEN("They are now different") { REQUIRE(tree != copy); }
@@ -628,7 +628,7 @@ SCENARIO_TEMPLATE("Copy constructor and operator make copies", T, char, short, u
             REQUIRE(isValidAVL(tree));
             THEN("They are the same") { REQUIRE(tree == randTree); }
             AND_WHEN("The copied-from tree is modified") {
-                randTree = {};
+                randTree = makeTree<T, char>({});
                 REQUIRE(isValidAVL(randTree));
                 REQUIRE(isValidAVL(tree));
                 THEN("They are now different") { REQUIRE(tree != randTree); }
@@ -662,12 +662,14 @@ SCENARIO_TEMPLATE("Values and keys vectors are sorted by keys", T, char, int, lo
         REQUIRE(tree.size() == map.size());
         WHEN("Keys are returned") {
             const auto retKeys = tree.keys();
+            REQUIRE(retKeys.size() == tree.size());
             THEN("They are in sorted order") {
                 REQUIRE(std::is_sorted(retKeys.begin(), retKeys.end()));
             }
         }
         WHEN("Values are returned") {
             const auto retVals = tree.values();
+            REQUIRE(retVals.size() == tree.size());
             THEN("They are in sorted order by keys") {
                 std::vector<int> expVals;
                 expVals.reserve(map.size());
@@ -691,12 +693,14 @@ SCENARIO_TEMPLATE("Values and keys vectors are sorted by keys", T, char, int, lo
         REQUIRE(tree.size() == map.size());
         WHEN("Keys are returned") {
             const auto retKeys = tree.keys();
+            REQUIRE(retKeys.size() == tree.size());
             THEN("They are in sorted order") {
                 REQUIRE(std::is_sorted(retKeys.begin(), retKeys.end()));
             }
         }
         WHEN("Values are returned") {
             const auto retVals = tree.values();
+            REQUIRE(retVals.size() == tree.size());
             THEN("They are in sorted order by keys") {
                 std::vector<T> expVals;
                 expVals.reserve(map.size());
@@ -717,10 +721,10 @@ TEST_CASE("Randomized insert and remove stress test" * doctest::timeout(300)) {
         maxSizes.push_back(maxSize);
     }
     std::reverse(maxSizes.begin(), maxSizes.end());
-    AVLTree<int, bool> tree;
+    AVLTree<int, bool> tree, emptyTree;
     for (int maxSize : maxSizes) {
         // Clear.
-        tree = {};
+        tree = emptyTree;
         // Insert maxSize unique keys.
         for (int i = 0; i < maxSize; i++) {
             REQUIRE(tree.insert(uniqueNums[i], {}));
