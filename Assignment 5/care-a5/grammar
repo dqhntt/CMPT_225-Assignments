@@ -1,0 +1,43 @@
+
+<S> -> <Stmts> eof
+
+
+#- statements grammar -#
+
+<Stmts> -> epsilon
+<Stmts> -> <Stmt> <Stmts>
+<Stmt> -> print <E> ;
+<Stmt> -> identifier = <E> ;
+<Stmt> -> if <E> { <Stmts> } 
+<Stmt> -> while <E> { <Stmts> }
+
+<Stmt> -> break ;                       ### part 2(b)(iii) only
+
+<Stmt> -> if <E> { <Stmts> } <Else>     ### part 2(b)(iv) only
+<Else> -> elif <E> { <Stmts> } <Else>   ### part 2(b)(iv) only
+<Else> -> else { <Stmts> }              ### part 2(b)(iv) only
+<Else> -> epsilon                       ### part 2(b)(iv) only
+
+
+#- expression grammar -#
+
+<E> -> <LAE>
+<E> -> <E> or <LAE>
+<LAE> -> <RE>
+<LAE> -> <LAE> and <RE>
+<RE> -> not <RE>
+<RE> -> <AE> <rop> <AE>
+<RE> -> <AE>
+<rop> -> < | > | == | != | <= | >=
+<AE> -> <T>
+<AE> -> <AE> + <T>
+<AE> -> <AE> - <T>
+<T> -> <F>
+<T> -> <T> * <F>
+<T> -> <T> / <F>
+<F> -> + <F>
+<F> -> - <F>
+<F> -> number
+<F> -> identifier
+<F> -> ( <E> )
+
