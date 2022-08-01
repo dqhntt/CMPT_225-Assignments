@@ -8,25 +8,25 @@
 namespace {
 //  Pre:  `op` is one of these 4 math operators: { + - * / }
 // Post:  Returns token with the result of [lhs] [op] [rhs]
-Token compute(const Token& lhs, const Token& rhs, TokenType op) {
+Token compute(const Token& lhs, const Token& rhs, Token::Type op) {
     int result = -1;
     switch (op) {
-    case TokenType::plus:
+    case Token::plus:
         result = lhs.value + rhs.value;
         break;
-    case TokenType::minus:
+    case Token::minus:
         result = lhs.value - rhs.value;
         break;
-    case TokenType::asterisk:
+    case Token::asterisk:
         result = lhs.value * rhs.value;
         break;
-    case TokenType::slash:
+    case Token::slash:
         result = lhs.value / rhs.value;
         break;
     default:
         throw std::invalid_argument("Invalid operator");
     }
-    return { TokenType::integer, std::to_string(result), result };
+    return { Token::integer, std::to_string(result), result };
 }
 
 // Pre:  numstack has 2 or more tokens.
@@ -39,7 +39,7 @@ Token popAndCompute(Stack<Token>& numstack, Stack<Token>& opstack) {
     const Token lhs = numstack.pop();
 
     assert(!opstack.isEmpty());
-    const TokenType topOp = opstack.pop().type;
+    const Token::Type topOp = opstack.pop().type;
 
     return compute(lhs, rhs, topOp);
 }
@@ -53,20 +53,20 @@ int evaluateInfix(const std::string& expression) {
     Stack<Token> numstack, opstack; // 2x Stacks of type Token
     Token currToken = scanner.getnext();
 
-    while (currToken.type != TokenType::eof || !opstack.isEmpty()) {
+    while (currToken.type != Token::eof || !opstack.isEmpty()) {
         switch (currToken.type) {
-        case TokenType::integer: {
+        case Token::integer: {
             numstack.push(std::move(currToken));
             currToken = scanner.getnext();
             break;
         }
-        case TokenType::leftParen: {
+        case Token::leftParen: {
             opstack.push(std::move(currToken));
             currToken = scanner.getnext();
             break;
         }
-        case TokenType::rightParen: {
-            if (opstack.peek().type == TokenType::leftParen) {
+        case Token::rightParen: {
+            if (opstack.peek().type == Token::leftParen) {
                 opstack.pop();
                 currToken = scanner.getnext();
             } else {
@@ -74,13 +74,13 @@ int evaluateInfix(const std::string& expression) {
             }
             break;
         }
-        case TokenType::plus:
-        case TokenType::minus:
-        case TokenType::eof: {
-            const TokenType topOp = !opstack.isEmpty() ? opstack.peek().type : TokenType::error;
+        case Token::plus:
+        case Token::minus:
+        case Token::eof: {
+            const Token::Type topOp = !opstack.isEmpty() ? opstack.peek().type : Token::error;
             if (!opstack.isEmpty()
-                && (topOp == TokenType::plus || topOp == TokenType::minus
-                    || topOp == TokenType::asterisk || topOp == TokenType::slash)) {
+                && (topOp == Token::plus || topOp == Token::minus || topOp == Token::asterisk
+                    || topOp == Token::slash)) {
                 numstack.push(popAndCompute(numstack, opstack));
             } else {
                 opstack.push(std::move(currToken));
@@ -88,10 +88,10 @@ int evaluateInfix(const std::string& expression) {
             }
             break;
         }
-        case TokenType::asterisk:
-        case TokenType::slash: {
-            const TokenType topOp = !opstack.isEmpty() ? opstack.peek().type : TokenType::error;
-            if (!opstack.isEmpty() && (topOp == TokenType::asterisk || topOp == TokenType::slash)) {
+        case Token::asterisk:
+        case Token::slash: {
+            const Token::Type topOp = !opstack.isEmpty() ? opstack.peek().type : Token::error;
+            if (!opstack.isEmpty() && (topOp == Token::asterisk || topOp == Token::slash)) {
                 numstack.push(popAndCompute(numstack, opstack));
             } else {
                 opstack.push(std::move(currToken));

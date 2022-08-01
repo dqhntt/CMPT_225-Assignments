@@ -11,13 +11,13 @@
 // literals:  integer
 //  special:  eof, err
 ///////////////////////////////
-enum class TokenType { plus, minus, asterisk, slash, leftParen, rightParen, integer, error, eof };
 
 //---------//
 //  Token  //
 //---------//
 struct Token {
-    TokenType type;
+    enum Type { plus, minus, asterisk, slash, leftParen, rightParen, integer, error, eof };
+    Type type;
     std::string text;
     int value;
 };

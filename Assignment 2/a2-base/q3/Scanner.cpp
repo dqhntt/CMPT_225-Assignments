@@ -3,11 +3,11 @@ using namespace std;
 
 // Desc:  Display a Token
 ostream& operator<<(ostream& os, const Token& token) {
-    if (token.type == TokenType::eof)
+    if (token.type == Token::eof)
         os << "eof";
-    else if (token.type == TokenType::error)
+    else if (token.type == Token::error)
         os << "err";
-    else if (token.type == TokenType::integer)
+    else if (token.type == Token::integer)
         os << token.value;
     else
         os << token.text;
@@ -37,20 +37,20 @@ Token Scanner::getnext() {
 
     // case 1: eof
     if (iStream_.eof()) {
-        ret.type = TokenType::eof;
+        ret.type = Token::eof;
         return ret;
     }
 
     // case 2: numerical-   [0-9]+
     if (isdigit(buffer_[0])) {
-        ret.type = TokenType::integer;
+        ret.type = Token::integer;
         ret.text = buffer_;
         buffer_[0] = iStream_.get();
         while (isdigit(buffer_[0])) {
             ret.text += buffer_;
             buffer_[0] = iStream_.get();
         }
-        ret.value = stod(ret.text);
+        ret.value = stoi(ret.text);
         if (isspace(buffer_[0]) || (buffer_[0] == '\r') || (buffer_[0] == '\n'))
             buffer_[0] = '\0';
         return ret;
@@ -59,19 +59,19 @@ Token Scanner::getnext() {
     // case 3: symbol
     ret.text = buffer_;
     if (buffer_[0] == '+') {
-        ret.type = TokenType::plus;
+        ret.type = Token::plus;
     } else if (buffer_[0] == '-') {
-        ret.type = TokenType::minus;
+        ret.type = Token::minus;
     } else if (buffer_[0] == '*') {
-        ret.type = TokenType::asterisk;
+        ret.type = Token::asterisk;
     } else if (buffer_[0] == '/') {
-        ret.type = TokenType::slash;
+        ret.type = Token::slash;
     } else if (buffer_[0] == '(') {
-        ret.type = TokenType::leftParen;
+        ret.type = Token::leftParen;
     } else if (buffer_[0] == ')') {
-        ret.type = TokenType::rightParen;
+        ret.type = Token::rightParen;
     } else {
-        ret.type = TokenType::error;
+        ret.type = Token::error;
     }
     buffer_[0] = '\0';
     return ret;
