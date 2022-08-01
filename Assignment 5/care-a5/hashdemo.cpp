@@ -1,20 +1,31 @@
-
 #include "hash.h"
-#include <cstdlib>
+#include <cassert>
+#include <iostream>
 #include <string>
-#include <assert.h>
-
 using namespace std;
 
 class pod {
-    public:
-        string key;
-        pod() { key = ""; }
-        pod(string key) { this->key = key; }
+public:
+    string key;
+    pod() = default;
+    pod(string key) : key(move(key)) { }
 };
 
+int main() {
+    for (char c = '0'; c <= '9'; c++) {
+        cout << c << " -- " << impl::mapChar(c) << "\n";
+    }
+    for (char c = 'a'; c <= 'z'; c++) {
+        cout << c << " -- " << impl::mapChar(c) << "\n";
+    }
+    for (char c = 'A'; c <= 'Z'; c++) {
+        cout << c << " -- " << impl::mapChar(c) << "\n";
+    }
+    char c = '_';
+    cout << c << " -- " << impl::mapChar(c) << "\n";
 
-int main () {
+    return 0;
+
     Set<pod> set;
     pod a[10];
     a[0] = pod("hello");
@@ -35,9 +46,8 @@ int main () {
     }
 
     for (int i = 0; i < 10; i++) {
-        assert (set.search(a[i].key) == a + i);
+        assert(set.search(a[i].key) == a + i);
     }
     cout << set.search("kumquat") << endl;
     cout << set.search("cand") << endl;
 } // main
-
