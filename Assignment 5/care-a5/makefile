@@ -1,43 +1,37 @@
+CXXFLAGS := -g -std=c++11 -Wall -Wextra -Wpedantic -Wfatal-errors -Werror
+CXXFLAGS += -Wduplicated-branches -Wduplicated-cond -Wlogical-op -Wcast-qual
+CXXFLAGS += -Wconversion -Wno-error=conversion
+CXXFLAGS += -Wnon-virtual-dtor -Wold-style-cast -Wuseless-cast
+# Sanitizers:
+CXXFLAGS += -fsanitize=undefined,address #--coverage
+LDFLAGS  := -fsanitize=undefined,address #--coverage
+CC = $(CXX)
 
-all:	 hashdemo pish setdemo testParse testScanner
+.DELETE_ON_ERROR:
+.PHONY: all cov clean
 
-hashdemo:	 hashdemo.o
-	g++ -std=c++11 -o hashdemo hashdemo.o
+all: hashdemo pish setdemo testParse testScanner
 
-pish:	 pish.o Scanner.o Parse.o
-	g++ -std=c++11 -o pish pish.o Scanner.o Parse.o
+hashdemo: hashdemo.o
+pish: pish.o Scanner.o Parse.o
+setdemo: setdemo.o
+testParse: testParse.o Scanner.o Parse.o
+testScanner: testScanner.o Scanner.o
 
-setdemo:	 setdemo.o
-	g++ -std=c++11 -o setdemo setdemo.o
+hashdemo.o: hashdemo.cpp hash.h
+pish.o: pish.cpp hash.h Scanner.h Parse.h
+Scanner.o: Scanner.cpp Scanner.h
+Parse.o: Parse.cpp Parse.h
+setdemo.o: setdemo.cpp set.h
+testParse.o: testParse.cpp Scanner.h Parse.h
+testScanner.o: testScanner.cpp Scanner.h
 
-testParse:	 testParse.o Scanner.o Parse.o
-	g++ -std=c++11 -o testParse testParse.o Scanner.o Parse.o
-
-testScanner:	 testScanner.o Scanner.o
-	g++ -std=c++11 -o testScanner testScanner.o Scanner.o
-
-hashdemo.o:	 hashdemo.cpp hash.h
-	g++ -std=c++11 -c hashdemo.cpp
-
-pish.o:	 pish.cpp hash.h Scanner.h Parse.h
-	g++ -std=c++11 -c pish.cpp
-
-Scanner.o:	 Scanner.cpp Scanner.h
-	g++ -std=c++11 -c Scanner.cpp
-
-Parse.o:	 Parse.cpp Parse.h
-	g++ -std=c++11 -c Parse.cpp
-
-setdemo.o:	 setdemo.cpp set.h
-	g++ -std=c++11 -c setdemo.cpp
-
-testParse.o:	 testParse.cpp Scanner.h Parse.h
-	g++ -std=c++11 -c testParse.cpp
-
-testScanner.o:	 testScanner.cpp Scanner.h
-	g++ -std=c++11 -c testScanner.cpp
+cov: run
+	@echo ""
+	@echo "[NOTE]: See 'coverage.html' for code coverage report."
+	@echo ""
+	gcovr --html-self-contained --html-details coverage.html
 
 clean:	
 	rm -f core *.o hashdemo pish setdemo testParse testScanner
-
-
+	rm -f coverage.* *.gcda *.gcno *.gcov
