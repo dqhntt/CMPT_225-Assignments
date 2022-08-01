@@ -12,18 +12,7 @@ public:
 };
 
 int main() {
-    for (char c = '0'; c <= '9'; c++) {
-        cout << c << " -- " << impl::mapChar(c) << "\n";
-    }
-    for (char c = 'a'; c <= 'z'; c++) {
-        cout << c << " -- " << impl::mapChar(c) << "\n";
-    }
-    for (char c = 'A'; c <= 'Z'; c++) {
-        cout << c << " -- " << impl::mapChar(c) << "\n";
-    }
-    char c = '_';
-    cout << c << " -- " << impl::mapChar(c) << "\n";
-
+    cout << impl::hash("Index") << "\n";
     return 0;
 
     Set<pod> set;

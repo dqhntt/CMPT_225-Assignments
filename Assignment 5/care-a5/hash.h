@@ -1,12 +1,12 @@
 #pragma once
 #include <algorithm>
+// #define NDEBUG
 #include <cassert>
 #include <string>
 
-constexpr int SCALE = 225;
-
 // * * * replace with your own personal modulus * * * //
 constexpr int M = 3061;
+constexpr int SCALE = 225;
 
 // Desc:  Dynamic Set of strings using a Hash Table (generic version)
 //  Pre:  class T must have an attribute key of type string
@@ -32,7 +32,7 @@ private:
 namespace impl {
 
 // According to provided table.
-int mapChar(char c) {
+int map_char(char c) {
     if (c >= '0' && c <= '9') {
         return c - '0';
     }
@@ -46,6 +46,21 @@ int mapChar(char c) {
     return 62; // _
 }
 
+// Self-notes:
+// https://math.stackexchange.com/a/2416125
+// (n * m) % p = ((n % p) * (m % p)) % p
+// = ((225 % M) * (base64 % M)) % M
+// = (225 * (Horner's hash)) % M
+// Because M > 225.
+int hash(const std::string& str, int base = 64, int max_val = M) {
+    assert(!str.empty());
+    int hashed_val = 0;
+    for (char c : str) {
+        // Horner's method.
+        hashed_val = (hashed_val * base + map_char(c)) % max_val;
+    }
+    return ((SCALE % max_val) * hashed_val) % max_val;
+}
 
 } // namespace impl
 
@@ -75,7 +90,7 @@ int Set<T>::insert(T* x) {
     return size_ - 1;
 }
 
-// Desc:  Returns T * x such that x->key == key, if and only if
+// Desc:  Returns T* x such that x->key == key, if and only if
 //        key is in the Set.
 //        Returns nullptr if and only if key is not in the Set.
 // Post:  Set is unchanged
