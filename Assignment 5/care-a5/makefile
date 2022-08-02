@@ -26,7 +26,7 @@ setdemo.o: setdemo.cpp set.h
 testParse.o: testParse.cpp Scanner.h Parse.h
 testScanner.o: testScanner.cpp Scanner.h
 
-cov: run
+cov:
 	@echo ""
 	@echo "[NOTE]: See 'coverage.html' for code coverage report."
 	@echo ""

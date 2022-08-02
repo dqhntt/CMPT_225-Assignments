@@ -1,8 +1,8 @@
 #pragma once
-#include <algorithm>
 // #define NDEBUG
 #include <cassert>
 #include <string>
+#include <type_traits>
 
 // * * * replace with your own personal modulus * * * //
 constexpr int M = 3061;
@@ -22,15 +22,10 @@ public:
 
 private:
     T* arr_[M];
-
-    // * * * Add attributes and helper methods here if you wish. * * * //
-
-    unsigned size_; // * * * remove this * * * //
 };
 
 // Helper functions for Set<T>.
 namespace impl {
-
 // According to provided table.
 int map_char(char c) {
     if (c >= '0' && c <= '9') {
@@ -43,7 +38,7 @@ int map_char(char c) {
         return c - 'A' + 36;
     }
     assert(c == '_' && "Unrecognized char mapping");
-    return 62; // _
+    return 62;
 }
 
 // Self-notes:
@@ -53,7 +48,6 @@ int map_char(char c) {
 // = (225 * (Horner's hash)) % M
 // Because M > 225.
 int hash(const std::string& str, int base = 64, int max_val = M) {
-    assert(!str.empty());
     int hashed_val = 0;
     for (char c : str) {
         // Horner's method.
@@ -61,33 +55,40 @@ int hash(const std::string& str, int base = 64, int max_val = M) {
     }
     return ((SCALE % max_val) * hashed_val) % max_val;
 }
-
 } // namespace impl
 
 // Desc:  Default constructor.  Initialize table to nullptr.
 template <class T>
-Set<T>::Set() : size_(0) {
-    std::fill(std::begin(arr_), std::end(arr_), nullptr);
+Set<T>::Set() {
+    static_assert(std::is_convertible<decltype(T::key), std::string>::value,
+        "T needs to have a string `key` attribute");
+    std::fill(arr_, arr_ + M, nullptr);
 }
 
 // Desc:  Insert x into the Set, according to its ->key.
-//        If ->key is already present, then replace it by x.
+//        If ->key is already present, then replace it with x.
 //        Collisions are resolved via quadratic probing sequence.
 // Post:  returns the table index where x was inserted
 //        returns -1 if x was not inserted
 template <class T>
 int Set<T>::insert(T* x) {
-    if (size_ == M)
-        return -1;
-    for (int i = size_ - 1; i >= 0; i--) {
-        if (arr_[i]->key == x->key) {
-            arr_[i] = x;
-            return i;
+    static_assert(M > 1, "Array with min size = 2 is needed for this function's loop");
+    if (x != nullptr) {
+        const int init_index = impl::hash(x->key);
+        int index = init_index;
+        for (int i = 1; i < M; i++) {
+            if (arr_[index] == nullptr || arr_[index]->key == x->key) {
+                arr_[index] = x;
+                return index;
+            }
+            const int next_index = (init_index + i * i) % M;
+            if (next_index == index) {
+                return -1;
+            }
+            index = next_index;
         }
     }
-    arr_[size_] = x;
-    size_++;
-    return size_ - 1;
+    return -1;
 }
 
 // Desc:  Returns T* x such that x->key == key, if and only if
@@ -96,9 +97,18 @@ int Set<T>::insert(T* x) {
 // Post:  Set is unchanged
 template <class T>
 T* Set<T>::search(const std::string& key) const {
-    for (int i = size_ - 1; i >= 0; i--) {
-        if (arr_[i]->key == key)
-            return arr_[i];
+    static_assert(M > 1, "Array with min size = 2 is needed for this function's loop");
+    const int init_index = impl::hash(key);
+    int index = init_index;
+    for (int i = 1; i < M; i++) {
+        if (arr_[index] == nullptr || arr_[index]->key == key) {
+            return arr_[index];
+        }
+        const int next_index = (init_index + i * i) % M;
+        if (next_index == index) {
+            return nullptr;
+        }
+        index = next_index;
     }
-    return nullptr;
+    return nullptr; // Will never get here: https://www.desmos.com/calculator/xrtpnpbgzr
 }

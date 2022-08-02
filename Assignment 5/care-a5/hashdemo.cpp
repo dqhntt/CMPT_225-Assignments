@@ -2,6 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 class pod {
@@ -12,31 +13,33 @@ public:
 };
 
 int main() {
-    cout << impl::hash("Index") << "\n";
-    return 0;
-
     Set<pod> set;
-    pod a[10];
-    a[0] = pod("hello");
-    a[1] = pod("banana");
-    a[2] = pod("apple");
-    a[3] = pod("apricot");
-    a[4] = pod("candy");
-    a[5] = pod("carkey");
-    a[6] = pod("godefroy");
-    a[7] = pod("airy");
-    a[8] = pod("hugs");
-    a[9] = pod("can");
-    int pos[10];
+    vector<pod> vec;
+    vec.push_back({ "hello" });
+    vec.push_back({ "banana" });
+    vec.push_back({ "apple" });
+    vec.push_back({ "apricot" });
+    vec.push_back({ "candy" });
+    vec.push_back({ "carkey" });
+    vec.push_back({ "godefroy" });
+    vec.push_back({ "airy" });
+    vec.push_back({ "hugs" });
+    vec.push_back({ "can" });
+    vec.push_back({ "hello" });
+    const int vec_size = vec.size();
+    vector<int> pos(vec_size);
 
-    for (int i = 0; i < 10; i++) {
-        pos[i] = set.insert(a + i);
-        cout << pos[i] << ' ' << a[i].key << endl;
+    for (int i = 0; i < vec_size; i++) {
+        pos[i] = set.insert(vec.data() + i);
+        cout << pos[i] << ' ' << vec[i].key << '\n';
     }
 
-    for (int i = 0; i < 10; i++) {
-        assert(set.search(a[i].key) == a + i);
+    assert(pos[0] == pos[10]); // "hello"
+    for (int i = 1; i < vec_size; i++) {
+        assert(set.search(vec[i].key) == vec.data() + i);
     }
-    cout << set.search("kumquat") << endl;
-    cout << set.search("cand") << endl;
+    cout << set.search("can") << '\n';
+    cout << set.search("hello") << '\n';
+    cout << set.search("kumquat") << '\n';
+    cout << set.search("cand") << '\n';
 } // main
