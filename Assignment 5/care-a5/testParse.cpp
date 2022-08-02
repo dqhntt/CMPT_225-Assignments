@@ -1,102 +1,129 @@
-
-#include "Scanner.h"
 #include "Parse.h"
-#include <assert.h>
-
+#include "Scanner.h"
+#include "hash.h"
+#include <cassert>
+#include <cstdlib>
 #include <iostream>
 using namespace std;
 
-#define tabstop 4
+constexpr int TAB_STOP = 4;
 
+class var {
+public:
+    string key;
+
+    // * * * add some more attributes and methods here * * * //
+};
+
+// * * * declare more things here * * * //
+
+Set<var> memmap;
+
+int run(StmtsNode* stmts) {
+
+    // TODO
+    cout << "Running TODO.\n";
+    return sizeof(stmts);
+}
+
+///////////////////////////////////////////////
+//----- carried over from testParse.cpp -----//
+///////////////////////////////////////////////
 
 // Desc:  These 3 functions return a string which is a pretty-printed
 //        version of the subtree rooted there.
-string printE(ExpnNode *root);
-string printStmts(StmtsNode *root, int ilevel);
-string print(StmtsNode *root);
-
+string printExpn(ExpnNode* root);
+string printStmts(StmtsNode* root, int ilevel);
+string print(StmtsNode* root);
 
 // Desc:  Generate pretty printed pish of the parse tree rooted at root.
-string print(StmtsNode *root) {
-    return printStmts(root, 0);  // call helper
+string print(StmtsNode* root) {
+    return printStmts(root, 0); // call helper
 }
-
 
 // Desc:  Generate pretty printed pish, by traversing like a linked list.
 //        Parameter ilevel is the indentation level.
-string printStmts(StmtsNode *root, int ilevel) {
+string printStmts(StmtsNode* root, int ilevel) {
     // generate leading tab
-    string spc = "", tab = "";
-    for (int i = 0; i < tabstop; i++) spc += " ";
-    for (int i = 0; i < ilevel; i++) tab += spc;
-
+    const string space(TAB_STOP, ' ');
+    string tab;
+    for (int i = 0; i < ilevel; i++)
+        tab += space;
 
     // traverse StmtsNode * like it is a linked list
-    StmtsNode *cur = root;
-    string accum = "";  // pretty-printed version
+    StmtsNode* curr = root;
+    string output; // pretty-printed version
 
-
-    while (cur != NULL) {
-        assert(cur->stmt != NULL);
+    while (curr != nullptr) {
+        assert(curr->stmt != nullptr);
 
         // print statement
-        if (cur->stmt->tok == printtok) {
-            accum += tab + toktotext(printtok) + " " + printE(cur->stmt->expn) + toktotext(sctok) + "\n";
+        if (curr->stmt->tok == printtok) {
+            output += tab + toktotext(printtok) + " " + printExpn(curr->stmt->expn) + toktotext(sctok)
+                + "\n";
         }
-
         // assignment statement
-        else if (cur->stmt->tok == asgntok) {
-            accum += tab + cur->stmt->ident + " " + toktotext(asgntok) + " " + printE(cur->stmt->expn) + toktotext(sctok) + "\n";
+        else if (curr->stmt->tok == asgntok) {
+            output += tab + curr->stmt->ident + " " + toktotext(asgntok) + " "
+                + printExpn(curr->stmt->expn) + toktotext(sctok) + "\n";
         }
-
         // while statement: tab level increases for subStmts
-        else if (cur->stmt->tok == whiletok) {
-            accum += tab + toktotext(whiletok) + " " + printE(cur->stmt->expn) + " " + toktotext(lctok) + "\n" + printStmts(cur->stmt->stmts, ilevel+1) + tab + toktotext(rctok) + "\n";
+        else if (curr->stmt->tok == whiletok) {
+            output += tab + toktotext(whiletok) + " " + printExpn(curr->stmt->expn) + " "
+                + toktotext(lctok) + "\n" + printStmts(curr->stmt->stmts, ilevel + 1) + tab
+                + toktotext(rctok) + "\n";
         }
-
         // if/elif/else statement: tab level increases for subStmts
-        else if (cur->stmt->tok == iftok) {
-            StmtNode *elif = cur->stmt;
-            while (elif != NULL) {
-                accum += tab + toktotext(elif->tok) + ((elif->tok == elsetok) ? "" : (" " + printE(elif->expn))) + " " + toktotext(lctok) + "\n" + printStmts(elif->stmts, ilevel+1) + tab + toktotext(rctok) + "\n";
+        else if (curr->stmt->tok == iftok) {
+            StmtNode* elif = curr->stmt;
+            while (elif != nullptr) {
+                output += tab + toktotext(elif->tok)
+                    + ((elif->tok == elsetok) ? "" : (" " + printExpn(elif->expn))) + " "
+                    + toktotext(lctok) + "\n" + printStmts(elif->stmts, ilevel + 1) + tab
+                    + toktotext(rctok) + "\n";
                 elif = elif->elif;
             }
         }
-
         // break statement
-        else if (cur->stmt->tok == breaktok) {
-            accum += tab + toktotext(breaktok) + toktotext(sctok) + "\n";
+        else if (curr->stmt->tok == breaktok) {
+            output += tab + toktotext(breaktok) + toktotext(sctok) + "\n";
+        } else {
+            assert(false && "Unknown statement");
         }
-        else { assert(0); }
-
 
         // next node in the chain
-        cur = cur->stmts;
+        curr = curr->stmts;
     }
-    return accum;
+    return output;
 }
-
 
 // Desc:  Generate bracketed infix via postorder traversal
-string printE(ExpnNode *root) {
-    if (root == NULL) return "";
-    if (root->text != "") return root->text;
-    if (root->left_operand == NULL) return "(" + toktotext(root->tok) + ((root->tok == nottok) ? " " : "") + printE(root->right_operand) + ")";
-    else return "(" + printE(root->left_operand) + " " + toktotext(root->tok) + " " + printE(root->right_operand) + ")";
+string printExpn(ExpnNode* root) {
+    if (root == nullptr)
+        return "";
+    if (root->text != "")
+        return root->text;
+    if (root->left_operand == nullptr) {
+        return "(" + toktotext(root->tok) + ((root->tok == nottok) ? " " : "")
+            + printExpn(root->right_operand) + ")";
+    } else {
+        return "(" + printExpn(root->left_operand) + " " + toktotext(root->tok) + " "
+            + printExpn(root->right_operand) + ")";
+    }
 }
 
-
-int main () {
-    StmtsNode *pTree;
+int main() {
+    StmtsNode* pTree = nullptr;
     try {
         pTree = Parse(cin);
-    }
-    catch(string s) {
+    } catch (const string& s) {
         cout << "Parse error: " << s << endl;
-        return 0;
+        delete pTree;
+        return 1;
     }
 
-    cout << "Parse Successful!\n";
-    cout << print(pTree); 
+    // cout << "Parse Successful!\n";
+    cout << print(pTree) << endl;
+    run(pTree);
+    delete pTree;
 }
-

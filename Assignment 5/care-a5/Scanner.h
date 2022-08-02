@@ -1,14 +1,6 @@
-
-#ifndef _SCANNER_H_
-
-#define _SCANNER_H_
-
-
+#pragma once
 #include <iostream>
 #include <string>
-
-using namespace std;
-
 
 // Desc:  TokenType identifies the token
 //
@@ -17,40 +9,59 @@ using namespace std;
 //  symbols:  =, +, -, *, /, (, ), <, >, ==, !=, <=, >=, {, }, ;
 // literals:  integer, ident (must begin with _[a-z][A-Z])
 //  special:  eof, err
-typedef enum { whiletok, iftok, eliftok, elsetok, printtok, breaktok, asgntok, pltok, mitok, asttok, slashtok, lptok, rptok, lttok, gttok, eqtok, netok, letok, getok, ortok, andtok, nottok, lctok, rctok, sctok, ident, integer, errtok, eof }
-TokenType ;
+enum TokenType {
+    whiletok, // while
+    iftok,    // if
+    eliftok,  // elif
+    elsetok,  // else
+    printtok, // print
+    breaktok, // break
+    asgntok,  // =
+    pltok,    // +
+    mitok,    // -
+    asttok,   // *
+    slashtok, // /
+    lptok,    // (
+    rptok,    // )
+    lttok,    // <
+    gttok,    // >
+    eqtok,    // ==
+    netok,    // !=
+    letok,    // <=
+    getok,    // >=
+    ortok,    // or
+    andtok,   // and
+    nottok,   // not
+    lctok,    // {
+    rctok,    // }
+    sctok,    // ;
+    ident,    // identifier
+    integer,
+    errtok, // error
+    eof
+};
 
-
-string toktotext(TokenType tt);
-ostream &operator<<(ostream &lhs, TokenType &rhs);
-
-
-
+std::string toktotext(TokenType);
+std::ostream& operator<<(std::ostream&, TokenType);
 
 ////////////////////////////////////////////////////////////
 //     -you can ignore everything beyond this point-
 ////////////////////////////////////////////////////////////
 
-
-
-
 class Token {
-    public:
-        TokenType tt;
-        int line;  // first line of input is line 1
-        string text;
+public:
+    TokenType tt;
+    int line; // first line of input is line 1
+    std::string text;
 };
-
 
 class Scanner {
-    private:
-        int line;
-        istream *str;
-        char buf[2];
-    public:
-        Scanner(istream &str);
-        Token getnext();
+public:
+    Scanner(std::istream&);
+    Token getnext();
+
+private:
+    int line;
+    std::istream& str;
+    char buf[2];
 };
-
-
-#endif // _SCANNER_H_

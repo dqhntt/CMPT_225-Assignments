@@ -1,261 +1,254 @@
-
 #include "Parse.h"
 #include <iostream>
-
 using namespace std;
 
-void match(TokenType tt);
-StmtsNode *ParseS();
-StmtsNode *ParseStmts();
-StmtNode *ParseStmt();
-ExpnNode *ParseE();
-ExpnNode *ParseLAE();
-ExpnNode *ParseRE();
-ExpnNode *ParseAE();
-ExpnNode *ParseT();
-ExpnNode *ParseF();
+void match(TokenType);
+StmtsNode* ParseS();
+StmtsNode* ParseStmts();
+StmtNode* ParseStmt();
+ExpnNode* ParseE();
+ExpnNode* ParseLAE();
+ExpnNode* ParseRE();
+ExpnNode* ParseAE();
+ExpnNode* ParseT();
+ExpnNode* ParseF();
 
+Scanner* SCANNER = nullptr;
+Token NEXT_TOKEN;
 
-Scanner *S;
-Token nextToken;
-
-
-StmtsNode *Parse(istream &str) {
-    S = new Scanner(str);
-    nextToken = S->getnext();
-    StmtsNode *ret = ParseS();
-    delete S;
+StmtsNode* Parse(istream& str) {
+    SCANNER = new Scanner(str);
+    NEXT_TOKEN = SCANNER->getnext();
+    StmtsNode* ret = ParseS();
+    delete SCANNER;
     return ret;
 }
-
 
 ///////////////////////////////////////////////////////////////
 //                     -descent parsing-
 ///////////////////////////////////////////////////////////////
 
-
 void match(TokenType tt) {
-    if (nextToken.tt != tt) {
-        char buf[64];
-        sprintf(buf, "%d", nextToken.line);
-        throw("Expected " + toktotext(tt) + " but scanned " + toktotext(nextToken.tt) + " on line " + buf);
+    if (NEXT_TOKEN.tt != tt) {
+        throw("Expected " + toktotext(tt) + " but scanned " + toktotext(NEXT_TOKEN.tt)
+            + " on line " + to_string(NEXT_TOKEN.line));
     }
-    nextToken = S->getnext();
+    NEXT_TOKEN = SCANNER->getnext();
 }
 
-
-StmtsNode *ParseS() {
-    StmtsNode *ret = ParseStmts();
-    match(eof);
+StmtsNode* ParseS() {
+    StmtsNode* ret = ParseStmts();
+    try {
+        match(eof);
+    } catch (...) {
+        delete ret;
+        throw;
+    }
     return ret;
 }
 
-
-StmtsNode *ParseStmts() {
+StmtsNode* ParseStmts() {
     //------------------------------------------------
     //  <Stmts> -> <Stmt>*
     //  strategy: create a linked list of StmtNode *
     //------------------------------------------------
-    StmtsNode ret(NULL, NULL);
-    StmtsNode *cur = &ret;
-    while ((nextToken.tt == printtok) || (nextToken.tt == ident) || (nextToken.tt == whiletok) || (nextToken.tt == iftok) || (nextToken.tt == breaktok)) {
-        cur->stmts = new StmtsNode(ParseStmt(), NULL);
+    StmtsNode ret(nullptr, nullptr);
+    StmtsNode* cur = &ret;
+    while ((NEXT_TOKEN.tt == printtok) || (NEXT_TOKEN.tt == ident) || (NEXT_TOKEN.tt == whiletok)
+        || (NEXT_TOKEN.tt == iftok) || (NEXT_TOKEN.tt == breaktok)) {
+        cur->stmts = new StmtsNode(ParseStmt(), nullptr);
         cur = cur->stmts;
     }
     cur = ret.stmts;
-    ret.stmts = NULL;
+    ret.stmts = nullptr;
     return cur;
 }
 
-
-StmtNode *ParseStmt() {
-    if (nextToken.tt == printtok) {
+StmtNode* ParseStmt() {
+    if (NEXT_TOKEN.tt == printtok) {
         //------------------------
         //  <Stmt> -> print <E> ;
         //------------------------
         match(printtok);
-        ExpnNode *E = ParseE();
+        ExpnNode* E = ParseE();
         match(sctok);
-        return new StmtNode(printtok, "", E, NULL, NULL);
-    }
-    else if (nextToken.tt == ident) {
+        return new StmtNode(printtok, "", E, nullptr, nullptr);
+    } else if (NEXT_TOKEN.tt == ident) {
         //--------------------------
         //  <Stmt> -> ident = <E> ;
         //--------------------------
-        string text = nextToken.text;
+        string text = NEXT_TOKEN.text;
         match(ident);
         match(asgntok);
-        ExpnNode *E = ParseE();
+        ExpnNode* E = ParseE();
         match(sctok);
-        return new StmtNode(asgntok, text, E, NULL, NULL);
-    }
-    else if (nextToken.tt == whiletok) {
+        return new StmtNode(asgntok, text, E, nullptr, nullptr);
+    } else if (NEXT_TOKEN.tt == whiletok) {
         //----------------------------------
         //  <Stmt> -> while <E> { <Stmts> }
         //----------------------------------
         match(whiletok);
-        ExpnNode *E = ParseE();
+        ExpnNode* E = ParseE();
         match(lctok);
-        StmtsNode *Stmts = ParseStmts();
+        StmtsNode* Stmts = ParseStmts();
         match(rctok);
-        return new StmtNode(whiletok, "", E, Stmts, NULL);
-    }
-    else if (nextToken.tt == iftok) {
+        return new StmtNode(whiletok, "", E, Stmts, nullptr);
+    } else if (NEXT_TOKEN.tt == iftok) {
         //------------------------------------------------------------------------------------
         //  <Stmt> -> if <E> { <Stmts> } (elif <E> { <Stmts> })* (epsilon | else { <Stmts> })
         //------------------------------------------------------------------------------------
         match(iftok);
-        ExpnNode *E = ParseE();
+        ExpnNode* E = ParseE();
         match(lctok);
-        StmtsNode *Stmts = ParseStmts();
+        StmtsNode* Stmts = ParseStmts();
         match(rctok);
-        StmtNode *ret = new StmtNode(iftok, "", E, Stmts, NULL);
-        StmtNode *cur = ret;
-        while (nextToken.tt == eliftok) {
+        StmtNode* ret = new StmtNode(iftok, "", E, Stmts, nullptr);
+        StmtNode* cur = ret;
+        while (NEXT_TOKEN.tt == eliftok) {
             match(eliftok);
-            ExpnNode *E = ParseE();
+            ExpnNode* E = ParseE();
             match(lctok);
-            StmtsNode *Stmts = ParseStmts();
+            StmtsNode* Stmts = ParseStmts();
             match(rctok);
-            cur->elif = new StmtNode(eliftok, "", E, Stmts, NULL);
+            cur->elif = new StmtNode(eliftok, "", E, Stmts, nullptr);
             cur = cur->elif;
         }
-        if (nextToken.tt == elsetok) {
+        if (NEXT_TOKEN.tt == elsetok) {
             match(elsetok);
             match(lctok);
-            StmtsNode *Stmts = ParseStmts();
+            StmtsNode* Stmts = ParseStmts();
             match(rctok);
-            cur->elif = new StmtNode(elsetok, "", new ExpnNode(integer, "1"), Stmts, NULL);
+            cur->elif = new StmtNode(elsetok, "", new ExpnNode(integer, "1"), Stmts, nullptr);
         }
         return ret;
+    } else if (NEXT_TOKEN.tt == breaktok) {
+        match(breaktok);
+        match(sctok);
+        return new StmtNode(breaktok, "", nullptr, nullptr, nullptr);
     }
-    else if (nextToken.tt == breaktok) {
-        match(breaktok); match(sctok);
-        return new StmtNode(breaktok, "", NULL, NULL, NULL);
-    }
+    return nullptr;
 }
 
-
-ExpnNode *ParseE() {
+ExpnNode* ParseE() {
     //---------------------------
     //  <E> -> <LAE> (or <LAE>)*
     //---------------------------
-    ExpnNode *ret = ParseLAE();
-    while(1) {
-        if (nextToken.tt == ortok) {
-            match(nextToken.tt);
+    ExpnNode* ret = ParseLAE();
+    while (true) {
+        if (NEXT_TOKEN.tt == ortok) {
+            match(NEXT_TOKEN.tt);
             ret = new ExpnNode(ret, ParseLAE(), ortok);
-        }
-        else return ret;
+        } else
+            return ret;
     }
 }
 
-
-ExpnNode *ParseLAE() {
+ExpnNode* ParseLAE() {
     //----------------------------
     //  <LAE> -> <RE> (and <RE>)*
     //----------------------------
-    ExpnNode *ret = ParseRE();
-    while(1) {
-        if (nextToken.tt == andtok) {
-            match(nextToken.tt);
+    ExpnNode* ret = ParseRE();
+    while (true) {
+        if (NEXT_TOKEN.tt == andtok) {
+            match(NEXT_TOKEN.tt);
             ret = new ExpnNode(ret, ParseRE(), andtok);
-        }
-        else return ret;
+        } else
+            return ret;
     }
 }
 
-
-ExpnNode *ParseRE() {
+ExpnNode* ParseRE() {
     //--------------------------------------
     //  <RE> -> <AE> (epsilon | <rop> <AE>)
     //--------------------------------------
     int notct = 0;
-    while (nextToken.tt == nottok) {
+    while (NEXT_TOKEN.tt == nottok) {
         notct++;
         match(nottok);
     }
-    ExpnNode *ret = ParseAE();
-    if ((nextToken.tt == lttok) || (nextToken.tt == gttok) || (nextToken.tt == eqtok) || (nextToken.tt == netok) || (nextToken.tt == letok) || (nextToken.tt == getok)) {
-        TokenType tmp = nextToken.tt;
-        match(nextToken.tt);
+    ExpnNode* ret = ParseAE();
+    if ((NEXT_TOKEN.tt == lttok) || (NEXT_TOKEN.tt == gttok) || (NEXT_TOKEN.tt == eqtok)
+        || (NEXT_TOKEN.tt == netok) || (NEXT_TOKEN.tt == letok) || (NEXT_TOKEN.tt == getok)) {
+        TokenType tmp = NEXT_TOKEN.tt;
+        match(NEXT_TOKEN.tt);
         ret = new ExpnNode(ret, ParseAE(), tmp);
     }
-    while (notct > 2) notct -= 2;
+    while (notct > 2)
+        notct -= 2;
     if (notct == 1) {
-        return new ExpnNode(NULL, ret, nottok);
-    }
-    else if (notct == 2) {
-        return new ExpnNode(NULL, new ExpnNode(NULL, ret, nottok), nottok);
-    }
-    else {
+        return new ExpnNode(nullptr, ret, nottok);
+    } else if (notct == 2) {
+        return new ExpnNode(nullptr, new ExpnNode(nullptr, ret, nottok), nottok);
+    } else {
         return ret;
     }
 }
 
-
-ExpnNode *ParseAE() {
+ExpnNode* ParseAE() {
     //-----------------------------
     //  <AE> -> <T> ((+ | -) <T>)*
     //-----------------------------
-    ExpnNode *ret = ParseT();
-    while(1) {
-        if ((nextToken.tt == pltok) || (nextToken.tt == mitok)) {
-            TokenType tmp = nextToken.tt;
-            match(nextToken.tt);
+    ExpnNode* ret = ParseT();
+    while (true) {
+        if ((NEXT_TOKEN.tt == pltok) || (NEXT_TOKEN.tt == mitok)) {
+            TokenType tmp = NEXT_TOKEN.tt;
+            match(NEXT_TOKEN.tt);
             ret = new ExpnNode(ret, ParseT(), tmp);
-        }
-        else return ret;
+        } else
+            return ret;
     }
 }
 
-
-ExpnNode *ParseT() {
+ExpnNode* ParseT() {
     //-----------------------------
     //  <T> -> <F> ((* | /) <F>)*
     //-----------------------------
-    ExpnNode *ret = ParseF();
-    while(1) {
-        if ((nextToken.tt == asttok) || (nextToken.tt == slashtok)) {
-            TokenType tmp = nextToken.tt;
-            match(nextToken.tt);
+    ExpnNode* ret = ParseF();
+    while (true) {
+        if ((NEXT_TOKEN.tt == asttok) || (NEXT_TOKEN.tt == slashtok)) {
+            TokenType tmp = NEXT_TOKEN.tt;
+            match(NEXT_TOKEN.tt);
             ret = new ExpnNode(ret, ParseF(), tmp);
+        } else {
+            return ret;
         }
-        else return ret;
     }
 }
 
-
-ExpnNode *ParseF() {
+ExpnNode* ParseF() {
     //----------------------------------------------
     //  <F> -> (+ | -)* (integer | ident | ( <E> ))
     //----------------------------------------------
     int sign = 0;
-    ExpnNode *ret;
-    while (1) {
-        if (nextToken.tt == pltok) { match(pltok); }
-        else if (nextToken.tt == mitok) { match(mitok); sign = (sign + 1) % 2; }
-        else if ((nextToken.tt == integer) || (nextToken.tt == ident)) { 
-            ret = new ExpnNode(nextToken.tt, nextToken.text);
-            match(nextToken.tt);
-            if (sign) ret = new ExpnNode(NULL, ret, mitok);
+    ExpnNode* ret = nullptr;
+    while (true) {
+        if (NEXT_TOKEN.tt == pltok) {
+            match(pltok);
+        } else if (NEXT_TOKEN.tt == mitok) {
+            match(mitok);
+            sign = (sign + 1) % 2;
+        } else if ((NEXT_TOKEN.tt == integer) || (NEXT_TOKEN.tt == ident)) {
+            ret = new ExpnNode(NEXT_TOKEN.tt, NEXT_TOKEN.text);
+            match(NEXT_TOKEN.tt);
+            if (sign != 0) {
+                ret = new ExpnNode(nullptr, ret, mitok);
+            }
             return ret;
-        }
-        else if (nextToken.tt == lptok) {
+        } else if (NEXT_TOKEN.tt == lptok) {
             match(lptok);
             ret = ParseE();
             match(rptok);
             return ret;
-        }
-        else {
-            char buf[64];
-            sprintf(buf, "%d", nextToken.line);
-            throw("Expected literal but scanned " + toktotext(nextToken.tt) + " on line " + buf);
+        } else {
+            delete ret;
+            throw("Expected literal but scanned " + toktotext(NEXT_TOKEN.tt) + " on line "
+                + to_string(NEXT_TOKEN.line));
         }
     }
 }
 
-
-StmtNode::~StmtNode() { if (expn != NULL) delete expn; if (stmts != NULL) delete stmts; if (elif != NULL) delete elif; }
-
-
+StmtNode::~StmtNode() {
+    delete expn;
+    delete stmts;
+    delete elif;
+}

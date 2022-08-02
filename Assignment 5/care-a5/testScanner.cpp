@@ -1,10 +1,8 @@
-
 #include "Scanner.h"
-
 #include <iostream>
 using namespace std;
 
-main () {
+int main () {
     Scanner S(cin);
     Token t;
     t = S.getnext();
