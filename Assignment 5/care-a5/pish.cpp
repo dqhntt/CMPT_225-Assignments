@@ -1,21 +1,21 @@
 #include "Parse.h"
 #include "Scanner.h"
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include <vector>
 using namespace std;
 
 namespace {
-template <class T>
-using Stack = std::vector<T>;
 
 constexpr int TAB_STOP = 4, M = 3061, SCALE = 225;
 
 ////////////////////////////////////////
 //----- carried over from hash.h -----//
 ////////////////////////////////////////
+
+// Set<T> is ridiculous. Repurposing it.
 
 // Hash Map: {string: int}
 class Map {
@@ -30,7 +30,7 @@ public:
 
 private:
     struct var {
-        string key;
+        const string& key;
         int value;
     };
     var* arr_[M];
@@ -51,7 +51,8 @@ int hash(const string& str, int base = 64, int max_val = M) {
     return ((SCALE % max_val) * hashed_val) % max_val;
 }
 
-// Pre: key not empty
+// Pre: key is not empty
+//      key is an lvalue
 void Map::insert(const string& key, int value) {
     static_assert(M > 1, "Array with min size = 2 is needed for this function's loop");
     assert(key != "");
@@ -97,15 +98,76 @@ int Map::at(const string& key) const {
     return -1;
 }
 
-int evaluate(const ExpnNode* expn, Map& var_map, int result = 0) {
-    assert(expn != nullptr);
+class div_by_zero_error : public domain_error {
+public:
+    div_by_zero_error() : domain_error("Division by zero error") { }
+};
 
-    // TODO
-
+int evaluate(const ExpnNode* expn, Map& var_map) {
+    if (expn == nullptr) {
+        return 0; // Unary minus / plus.
+    }
+    // Leaves.
+    if (expn->tok == integer) {
+        return stoi(expn->text);
+    }
+    if (expn->tok == ident) {
+        return var_map.at(expn->text);
+    }
+    // Left-hand side.
+    const int lhs = evaluate(expn->left_operand, var_map);
+    if (expn->tok == ortok) {
+        // Implicit short-circuit evaluation.
+        return lhs || evaluate(expn->right_operand, var_map);
+    }
+    if (expn->tok == andtok) {
+        // Implicit short-circuit evaluation.
+        return lhs && evaluate(expn->right_operand, var_map);
+    }
+    if (expn->tok == asttok) {
+        return (lhs == 0) ? 0 : lhs * evaluate(expn->right_operand, var_map);
+    }
+    if (expn->tok == slashtok) {
+        if (lhs == 0) {
+            return 0;
+        }
+        const int rhs = evaluate(expn->right_operand, var_map);
+        if (rhs == 0) {
+            throw div_by_zero_error {};
+        }
+        return floor(static_cast<double>(lhs) / rhs);
+    }
+    // Right-hand side.
+    const int rhs = evaluate(expn->right_operand, var_map);
+    switch (expn->tok) {
+    case pltok:
+        return lhs + rhs;
+    case mitok:
+        return lhs - rhs;
+    case lttok:
+        return lhs < rhs;
+    case gttok:
+        return lhs > rhs;
+    case eqtok:
+        return lhs == rhs;
+    case netok:
+        return lhs != rhs;
+    case letok:
+        return lhs <= rhs;
+    case getok:
+        return lhs >= rhs;
+    case nottok:
+        return !rhs;
+    default:
+        assert(false && "Unknown token in expression");
+        return -1;
+    }
 }
 
-class break_stmt : public bad_exception {
-    // NEVER use exceptions just to signal info.
+class break_stmt : public runtime_error {
+public:
+    // NEVER use exceptions just to signal normal info.
+    using runtime_error::runtime_error;
 };
 
 void run(const StmtsNode* stmts, Map& var_map) {
@@ -119,14 +181,10 @@ void run(const StmtsNode* stmts, Map& var_map) {
         }
         // assignment statement
         else if (curr->stmt->tok == asgntok) {
-
-            // TODO ?
             var_map.insert(curr->stmt->ident, evaluate(curr->stmt->expn, var_map));
         }
         // while statement
         else if (curr->stmt->tok == whiletok) {
-
-            // TODO ?
             while (evaluate(curr->stmt->expn, var_map)) {
                 try {
                     run(curr->stmt->stmts, var_map);
@@ -139,10 +197,12 @@ void run(const StmtsNode* stmts, Map& var_map) {
         else if (curr->stmt->tok == iftok) {
             const StmtNode* elif = curr->stmt;
             while (elif != nullptr) {
-
-                // TODO
-
-                if (evaluate(elif->expn, var_map)) {
+                if (elif->tok == iftok || elif->tok == eliftok) {
+                    if (evaluate(elif->expn, var_map)) {
+                        run(elif->stmts, var_map);
+                        break;
+                    }
+                } else {
                     run(elif->stmts, var_map);
                 }
                 elif = elif->elif;
@@ -150,9 +210,7 @@ void run(const StmtsNode* stmts, Map& var_map) {
         }
         // break statement
         else if (curr->stmt->tok == breaktok) {
-
-            // TODO ?
-            throw break_stmt {};
+            throw break_stmt("break;");
         } else {
             assert(false && "Unknown statement");
         }
@@ -242,7 +300,7 @@ int main() {
     try {
         parsed_tree = Parse(cin);
     } catch (const string& s) {
-        cout << "Parse error: " << s << '\n';
+        cerr << "Parse error: " << s << '\n';
         return EXIT_FAILURE;
     }
 
@@ -250,8 +308,19 @@ int main() {
          << string(50, '-') << '\n'
          << repr_stmts(parsed_tree)
          << string(50, '-') << endl;
+
     Map var_map;
-    run(parsed_tree, var_map);
+    try {
+        run(parsed_tree, var_map);
+    } catch (const break_stmt& brk) {
+        delete parsed_tree;
+        cerr << "Parse error: Misplaced " << brk.what() << '\n';
+        return EXIT_FAILURE;
+    } catch (const div_by_zero_error& dv0) {
+        delete parsed_tree;
+        cerr << dv0.what() << '\n';
+        return EXIT_FAILURE;
+    }
     delete parsed_tree;
     return EXIT_SUCCESS;
 }

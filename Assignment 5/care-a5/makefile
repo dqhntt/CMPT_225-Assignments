@@ -1,6 +1,6 @@
 CXXFLAGS := -g -std=c++11 -Wall -Wextra -Wpedantic -Wfatal-errors -Werror
 CXXFLAGS += -Wduplicated-branches -Wduplicated-cond -Wlogical-op -Wcast-qual
-CXXFLAGS += -Wconversion -Wno-error=conversion
+#CXXFLAGS += -Wconversion -Wno-error=conversion
 CXXFLAGS += -Wnon-virtual-dtor -Wold-style-cast -Wuseless-cast
 # Sanitizers:
 CXXFLAGS += -fsanitize=undefined,address #--coverage
@@ -8,7 +8,7 @@ LDFLAGS  := -fsanitize=undefined,address #--coverage
 CC = $(CXX)
 
 .DELETE_ON_ERROR:
-.PHONY: all cov clean
+.PHONY: all zip cov clean
 
 all: hashdemo pish setdemo testParse testScanner
 
@@ -25,6 +25,9 @@ Parse.o: Parse.cpp Parse.h
 setdemo.o: setdemo.cpp set.h
 testParse.o: testParse.cpp Scanner.h Parse.h
 testScanner.o: testScanner.cpp Scanner.h
+
+zip: hash.h pish.cpp
+	zip a5.zip $^
 
 cov:
 	@echo ""

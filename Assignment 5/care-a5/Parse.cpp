@@ -238,9 +238,11 @@ ExpnNode* ParseF() {
             match(lptok);
             ret = ParseE();
             match(rptok);
+            if (sign != 0) {
+                ret = new ExpnNode(nullptr, ret, mitok);
+            }
             return ret;
         } else {
-            delete ret;
             throw("Expected literal but scanned " + toktotext(NEXT_TOKEN.tt) + " on line "
                 + to_string(NEXT_TOKEN.line));
         }

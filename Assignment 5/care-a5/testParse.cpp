@@ -8,24 +8,6 @@ using namespace std;
 
 constexpr int TAB_STOP = 4;
 
-class var {
-public:
-    string key;
-
-    // * * * add some more attributes and methods here * * * //
-};
-
-// * * * declare more things here * * * //
-
-Set<var> memmap;
-
-int run(StmtsNode* stmts) {
-
-    // TODO
-    cout << "Running TODO.\n";
-    return sizeof(stmts);
-}
-
 ///////////////////////////////////////////////
 //----- carried over from testParse.cpp -----//
 ///////////////////////////////////////////////
@@ -122,8 +104,7 @@ int main() {
         return 1;
     }
 
-    // cout << "Parse Successful!\n";
+    cout << "Parse Successful!\n";
     cout << print(pTree) << endl;
-    run(pTree);
     delete pTree;
 }
