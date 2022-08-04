@@ -26,6 +26,14 @@ setdemo.o: setdemo.cpp set.h
 testParse.o: testParse.cpp Scanner.h Parse.h
 testScanner.o: testScanner.cpp Scanner.h
 
+test: pish testParse
+	cp $^ pish_tests
+	$(MAKE) -C pish_tests run
+
+zip_tests: makefile pish_tests
+	$(MAKE) -C pish_tests clean
+	zip -r pish_tests.zip $^
+
 zip: hash.h pish.cpp
 	zip a5.zip $^
 

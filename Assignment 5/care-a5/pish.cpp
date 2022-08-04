@@ -304,10 +304,10 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    cout << "Parse Successful!\n"
-         << string(50, '-') << '\n'
-         << repr_stmts(parsed_tree)
-         << string(50, '-') << endl;
+    // cout << "Parse Successful!\n"
+    //      << string(50, '-') << '\n'
+    //      << repr_stmts(parsed_tree)
+    //      << string(50, '-') << endl;
 
     Map var_map;
     try {
@@ -316,9 +316,9 @@ int main() {
         delete parsed_tree;
         cerr << "Parse error: Misplaced " << brk.what() << '\n';
         return EXIT_FAILURE;
-    } catch (const div_by_zero_error& dv0) {
+    } catch (const exception& e) {
         delete parsed_tree;
-        cerr << dv0.what() << '\n';
+        cerr << "EXCEPTION: " << e.what() << '\n';
         return EXIT_FAILURE;
     }
     delete parsed_tree;
