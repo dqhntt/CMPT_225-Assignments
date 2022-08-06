@@ -1,0 +1,49 @@
+a = 0;
+b = a;
+i = b;
+while i < 100 {
+    i = i + 1;
+    if i > 10 {
+        i = i - 2;
+        if i < 5 {
+            i = i + 3;
+        }
+        elif i {
+            i = -i;
+        }
+        else {
+            i = i * 2;
+        }
+        i = i - 1;
+    }
+    elif i < 5 {
+        i = i - 3;
+        if i < 2 {
+            i = i + 2;
+        }
+        elif i {
+            i = -i - i;
+        }
+        else {
+            i = i / 3;
+        }
+        i = i + 1;
+    }
+    else {
+        i = i / 3 + i;
+    }
+    i = i +- i / i;
+    if i {
+        i = i * -i;
+    }
+    elif not i or i {
+        i = 5 - i;
+    }
+    else {
+        i = i;
+    }
+    i = i - 3 + i;
+    i = i * (i / 2);
+}
+
+print i;

@@ -1,4 +1,4 @@
-CXXFLAGS := -O3 #-g -Wall -Wextra -Wpedantic -Werror -Wfatal-errors -Werror
+CXXFLAGS := -O3 -g -Wall -Wextra -Wpedantic -Werror -Wfatal-errors -fsanitize=undefined,address
 CC = $(CXX)
 
 .DELETE_ON_ERROR:
@@ -9,7 +9,7 @@ test: run
 # https://stackoverflow.com/a/29747593
 run: pish_test.sh pish testParse transform
 	@sed -i -e 's/\r$$//' $<
-	chmod +x $<
+	@chmod +x $<
 	./$<
 
 pish:

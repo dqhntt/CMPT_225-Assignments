@@ -8,7 +8,7 @@ LDFLAGS  := -fsanitize=undefined,address #--coverage
 CC = $(CXX)
 
 .DELETE_ON_ERROR:
-.PHONY: all zip cov clean
+.PHONY: all zip zip_tests test cov clean
 
 all: hashdemo pish setdemo testParse testScanner
 
@@ -27,12 +27,13 @@ testParse.o: testParse.cpp Scanner.h Parse.h
 testScanner.o: testScanner.cpp Scanner.h
 
 test: pish testParse
-	cp $^ pish_tests
-	$(MAKE) -C pish_tests run
+	cp $^ pish_tests/
+	$(MAKE) -C hash_test/ $@
+	$(MAKE) -C pish_tests/ $@
 
-zip_tests: makefile pish_tests
-	$(MAKE) -C pish_tests clean
-	zip -r pish_tests.zip $^
+zip_tests: makefile pish_tests/ hash_test/
+	$(MAKE) clean
+	zip -r a5tests.zip $^
 
 zip: hash.h pish.cpp
 	zip a5.zip $^
@@ -43,6 +44,9 @@ cov:
 	@echo ""
 	gcovr --html-self-contained --html-details coverage.html
 
-clean:	
-	rm -f core *.o hashdemo pish setdemo testParse testScanner
+
+clean:
+	rm -f *.o hashdemo pish setdemo testParse testScanner
 	rm -f coverage.* *.gcda *.gcno *.gcov
+	$(MAKE) -C hash_test/ $@
+	$(MAKE) -C pish_tests/ $@

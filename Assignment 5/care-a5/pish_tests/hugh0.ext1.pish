@@ -1,0 +1,10 @@
+a = 5;
+b = 10;
+print a + b;
+print 0 / c;
+print 0 / 0;
+
+b = b - b;
+print b * c;
+print b and c;
+print a or c;
