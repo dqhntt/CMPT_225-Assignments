@@ -48,7 +48,7 @@ fi
 
 # Get outputs from both stderr and stdout.
 # 1st arg = PISH
-get_output() {
+get_outputs() {
     echo "Testing $1"
     ./pish < "$1" &> "$1".got
     ./testParse < "$1" &> "$1".parsed
@@ -95,16 +95,16 @@ diff_pish () {
 # Regular pish.
 for PISH in *.reg.pish
 do
-    get_output $PISH
-    fix_pish_line_endings $PISH
+    get_outputs "$PISH"
+    fix_pish_line_endings "$PISH"
     diff_pish "$PISH"
 done
 
 if [ "$ext1" = "y" ]; then
     for PISH in *.ext1.pish
     do
-        get_output $PISH
-        fix_pish_line_endings $PISH
+        get_outputs "$PISH"
+        fix_pish_line_endings "$PISH"
         diff_pish "$PISH"
     done
 fi
@@ -112,8 +112,8 @@ fi
 if [ "$ext2" = "y" ]; then
     for PISH in *.ext2.pish
     do
-        get_output $PISH
-        fix_pish_line_endings $PISH
+        get_outputs "$PISH"
+        fix_pish_line_endings "$PISH"
         diff_pish "$PISH"
     done
 fi
@@ -121,8 +121,8 @@ fi
 if [ "$ext3" = "y" ]; then
     for PISH in *.ext3.pish
     do
-        get_output $PISH
-        fix_pish_line_endings $PISH
+        get_outputs "$PISH"
+        fix_pish_line_endings "$PISH"
         diff_pish "$PISH"
     done
 fi
@@ -130,8 +130,8 @@ fi
 if [ "$ext4" = "y" ]; then
     for PISH in *.ext4.pish
     do
-        get_output $PISH
-        fix_pish_line_endings $PISH
+        get_outputs "$PISH"
+        fix_pish_line_endings "$PISH"
         diff_pish "$PISH"
     done
 fi
